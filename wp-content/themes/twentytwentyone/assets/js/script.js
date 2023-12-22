@@ -1,19 +1,19 @@
 
 $(document).ready(function () {
   $("#center").click(function () {
-  if ($("input[name='teachers[]']").is(":checked")) {
-  alert("Check box in Checked");
-  $("#teacherlisting").submit();
-  } else {
-    alert("Check box is Unchecked");
-      }
+    if ($("input[name='teachers[]']").is(":checked")) {
+      alert("Check box in Checked");
+      $("#teacherlisting").submit();
+    } else {
+      alert("Check box is Unchecked");
+    }
   });
   $("#purpose").click(function () {
     var selectedOption = $('#inputState').val();
     var checkboxChecked = $("input[name='purpose[]']").is(":checked");
-  
+
     if (selectedOption && selectedOption !== 'Choose Time Period' && checkboxChecked) {
-      alert('Option is selected: ' + selectedOption  + ' ' + 'checkbox is checked ');
+      alert('Option is selected: ' + selectedOption + ' ' + 'checkbox is checked ');
       $("#onpurpose").submit();
     } else {
       alert('Please select a valid option and check the checkbox!');
@@ -24,91 +24,110 @@ $(document).ready(function () {
 /**
  * Datepicker code
  */
-jQuery(function() {
+jQuery(function () {
   setTimeout(() => {
-    jQuery("[id^='datepicker_']").each(function(i) {
-      jQuery(this).datepicker({ minDate: 0 }); // Apply datepicker to each element
+    jQuery("[id^='datepicker_']").each(function (i) {
+      jQuery(this).datepicker({ minDate: 0 ,dateFormat: 'dd-mm-yy'}); 
+      $(this).on("change",function(){
+        var selected = $(this).val();
+        var displayId = $(this).closest('.container').find('span').attr('id');
+        $('#' + displayId).text(selected);
+        alert(displayId);
+        alert(selected);
+    });
     });
   }, 1000);
-//Handle hour selection and display in AM/PM format
-  $('input[name=hour_0]').change(function(){
-    var value = $('input[name=hour_0]:checked').val();
-    
-    // Adjusting hours and displaying in AM/PM format
-    var hour = parseInt(value.substring(0, 2));
-    var ampm = (hour >= 12) ? 'PM' : 'AM';
-    hour = (hour % 12) || 12; // Convert to 12-hour format
-    var formattedHour = ("0" + hour).slice(-2); // Zero-padding for single-digit hours
-    
-    $("#clock_0").html(formattedHour + ':00 ' + ampm); // Display formatted hour
-  }); 
+  //Handle hour selection and display in AM/PM format
+  $('input[type="radio"]').change(function() {
+    var selectedValue = $(this).val(); // Get the value of the selected radio button
+    var displayId = $(this).closest('.Timepicker').find('span').attr('id'); // Find the span ID in the current Timepicker div
+    $('#' + displayId).text(selectedValue); // Update the text of the span with the selected value
+  });
 });
-
-
-
-
 /**
  * Search code START
  */
 
 var level;
-  if (document.querySelector('select[name="level-select"]')!= null) {
+if (document.querySelector('select[name="level-select"]') != null) {
   level = document.querySelector('select[name="level-select"]').value;
 }
 else {
-    level = null;
+  level = null;
 }
-  var country;
-  if (document.querySelector('select[name="country-select"]')!= null) {
+var country;
+if (document.querySelector('select[name="country-select"]') != null) {
   country = document.querySelector('select[name="country-select"]').value;
 }
 else {
-    country = null;
+  country = null;
 }
-  var language;
-  if (document.querySelector('select[name="language-select"]') != null) {
-    language = document.querySelector('select[name="language-select"]').value;
+var language;
+if (document.querySelector('select[name="language-select"]') != null) {
+  language = document.querySelector('select[name="language-select"]').value;
 }
 else {
   language = null;
 }
-  var searchButton;
-  if (document.getElementById("search-button") != null) {
-    searchButton = document.getElementById("search-button").value;
+var searchButton;
+if (document.getElementById("search-button") != null) {
+  searchButton = document.getElementById("search-button").value;
 }
 else {
   searchButton = null;
 }
-  
 
-  if (level === "0") {
-    document.querySelector("#level_err").innerHTML =
-      '<div class="alert alert-warning">Please select at least One option</div>';
-    alert("Please select at least One option");
+
+if (level === "0") {
+  document.querySelector("#level_err").innerHTML =
+    '<div class="alert alert-warning">Please select at least One option</div>';
+  alert("Please select at least One option");
+}
+
+if (country === "0") {
+  document.querySelector("#country_err").innerHTML =
+    '<div class="alert alert-warning">Please select at least One option</div>';
+  alert("Please select at least One option");
+}
+
+if (language === "0") {
+  document.querySelector("#language_err").innerHTML =
+    '<div class="alert alert-warning">Please select at least One option</div>';
+  alert("Please select at least One option");
+}
+document.addEventListener("DOMContentLoaded", function () {
+  // Get references to the select boxes and search button
+  const levelSelect = document.getElementById("level-select");
+  const countrySelect = document.getElementById("country-select");
+  const languageSelect = document.getElementById("language-select");
+  if (searchButton) {
+    const searchButton = document.getElementById("search-button");
+
   }
+});
 
-  if (country === "0") {
-    document.querySelector("#country_err").innerHTML =
-      '<div class="alert alert-warning">Please select at least One option</div>';
-    alert("Please select at least One option");
-  }
+/**
+* Search code END
+*/
 
-  if (language === "0") {
-    document.querySelector("#language_err").innerHTML =
-      '<div class="alert alert-warning">Please select at least One option</div>';
-    alert("Please select at least One option");
-  }
- document.addEventListener("DOMContentLoaded", function () {
-    // Get references to the select boxes and search button
-    const levelSelect = document.getElementById("level-select");
-    const countrySelect = document.getElementById("country-select");
-    const languageSelect = document.getElementById("language-select");
-    if (searchButton) {
-    const searchButton = document.getElementById("search-button");   
-
-  }
-  });
-
-  /**
- * Search code END
- */
+jQuery(document).ready(function ($) {
+  // Register AJAX
+     $('#register-submit').on('click', function () {
+         var data = {
+             action: 'ajax_register',
+             security: ajax_auth_object.nonce,
+             username: $('#register-username').val(),
+             email: $('#register-email').val(),
+             password: $('#register-password').val(),
+         };
+ 
+         $.post(ajax_auth_object.ajaxurl, data, function (response) {
+             var result = JSON.parse(response);
+             $('#register-message').html(result.message);
+ 
+             if (result.registered) {
+                 location.reload();
+             }
+         });
+     });
+ });
