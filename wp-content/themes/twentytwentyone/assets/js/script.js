@@ -27,27 +27,63 @@ $(document).ready(function () {
 jQuery(function () {
   setTimeout(() => {
     jQuery("[id^='datepicker_']").each(function (i) {
-      jQuery(this).datepicker({ minDate: 0 ,dateFormat: 'dd-mm-yy'}); 
-      $(this).on("change",function(){
-        var selected = $(this).val();
-        var displayId = $(this).closest('.container').find('span').attr('id');
-        $('#' + displayId).text(selected);
-        alert(displayId);
-        alert(selected);
-    });
+      jQuery(this).datepicker({
+        minDate: 0,
+        dateFormat: 'dd-mm-yy',
+        onSelect: function (dateText, inst) {
+          var array = [];
+          $(this).attr('data-date', dateText);
+          var displayId = $(this).closest('.container').find('span').attr('id');
+          $('#' + displayId).text(dateText);
+          jQuery("[id^='datepicker_']").each(function (i) {
+            var value = $(this).attr('data-date');
+            console.log(value);
+            if (value != null) {
+              array.push(value);
+            }
+
+          });
+          alert(array);
+          var count = array.length;
+       
+        }
+      });
     });
   }, 1000);
-  //Handle hour selection and display in AM/PM format
-  $('input[type="radio"]').change(function() {
-    var selectedValue = $(this).val(); // Get the value of the selected radio button
-    var displayId = $(this).closest('.Timepicker').find('span').attr('id'); // Find the span ID in the current Timepicker div
-    $('#' + displayId).text(selectedValue); // Update the text of the span with the selected value
+
+  $(".nextbtn").click(function () {
+    alert(count);
+    if (array.length < 3) {
+      alert("343");
+      $("#date_time").submit();
+    } else {
+      alert("select atleast each");
+    }
+    // if (selectedValue !== undefined && selectedValue !== null && selectedValue !== '') {
+    //   $("#date_time").submit();
+    // } else {
+  
+    //   alert('Please select a time slot.'); 
+    // }
   });
+
+$('input[type="radio"]').change(function () {
+  var selectedValue = $(this).val(); // Get the value of the selected radio button
+  var displayId = $(this).closest('.Timepicker').find('span').attr('id'); 
+  $('#' + displayId).text(selectedValue); 
+});
+$("#nextbtn").submit(function () {
+  if (selectedValue !== undefined && selectedValue !== null && selectedValue !== '') {
+    $("#date_time").submit();
+  } else {
+
+    alert('Please select a time slot.'); 
+  }
+});
 });
 /**
  * Search code START
  */
-
 var level;
 if (document.querySelector('select[name="level-select"]') != null) {
   level = document.querySelector('select[name="level-select"]').value;
@@ -112,22 +148,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
 jQuery(document).ready(function ($) {
   // Register AJAX
-     $('#register-submit').on('click', function () {
-         var data = {
-             action: 'ajax_register',
-             security: ajax_auth_object.nonce,
-             username: $('#register-username').val(),
-             email: $('#register-email').val(),
-             password: $('#register-password').val(),
-         };
- 
-         $.post(ajax_auth_object.ajaxurl, data, function (response) {
-             var result = JSON.parse(response);
-             $('#register-message').html(result.message);
- 
-             if (result.registered) {
-                 location.reload();
-             }
-         });
-     });
- });
+  $('#register-submit').on('click', function () {
+    var data = {
+      action: 'ajax_register',
+      security: ajax_auth_object.nonce,
+      username: $('#register-username').val(),
+      email: $('#register-email').val(),
+      password: $('#register-password').val(),
+    };
+
+    $.post(ajax_auth_object.ajaxurl, data, function (response) {
+      var result = JSON.parse(response);
+      $('#register-message').html(result.message);
+
+      if (result.registered) {
+        location.reload();
+      }
+    });
+  });
+});
