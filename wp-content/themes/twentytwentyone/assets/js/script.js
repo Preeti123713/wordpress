@@ -1,4 +1,32 @@
+var x=document.getElementById('login');
+var y=document.getElementById('register');
+var z=document.getElementById('btn');
 
+var loginButton = document.querySelector('.login');
+// console.log(loginButton);
+var registerButton = document.querySelector('.register');
+function register()
+{
+    x.style.left='-400px';
+    y.style.left='50px';
+    z.style.left='110px';
+}
+function login()
+{
+    x.style.left='50px';
+    y.style.left='450px';
+    z.style.left='0px';
+}
+var modal = document.getElementById('login-form');
+window.onclick = function(event) 
+{
+    if (event.target == modal) 
+    {
+        modal.style.display = "none";
+    }
+}
+loginButton.addEventListener('click', login);
+registerButton.addEventListener('click', register);
 $(document).ready(function () {
   $("#center").click(function () {
     if ($("input[name='teachers[]']").is(":checked")) {
@@ -25,6 +53,7 @@ $(document).ready(function () {
  * Datepicker code
  */
 jQuery(function () {
+  var count;
   setTimeout(() => {
     jQuery("[id^='datepicker_']").each(function (i) {
       jQuery(this).datepicker({
@@ -41,46 +70,31 @@ jQuery(function () {
             if (value != null) {
               array.push(value);
             }
-
+            $('#selectdate').val(array);
           });
-          alert(array);
-          var count = array.length;
-       
+
+          count = array.length;
         }
       });
     });
   }, 1000);
-
+  /* validation in datepicker */
   $(".nextbtn").click(function () {
-    alert(count);
-    if (array.length < 3) {
-      alert("343");
+    var countradio = 3;
+    if (count === 3 && $('input:radio:checked').length == countradio) {
       $("#date_time").submit();
     } else {
-      alert("select atleast each");
+      alert("select atleast each and select time also");
     }
-    // if (selectedValue !== undefined && selectedValue !== null && selectedValue !== '') {
-    //   $("#date_time").submit();
-    // } else {
-  
-    //   alert('Please select a time slot.'); 
-    // }
   });
 
-$('input[type="radio"]').change(function () {
-  var selectedValue = $(this).val(); // Get the value of the selected radio button
-  var displayId = $(this).closest('.Timepicker').find('span').attr('id'); 
-  $('#' + displayId).text(selectedValue); 
+  $('input[type="radio"]').change(function () {
+    var selectedValue = $(this).val(); // Get the value of the selected radio button
+    var displayId = $(this).closest('.Timepicker').find('span').attr('id');
+    $('#' + displayId).text(selectedValue);
+  });
 });
-$("#nextbtn").submit(function () {
-  if (selectedValue !== undefined && selectedValue !== null && selectedValue !== '') {
-    $("#date_time").submit();
-  } else {
 
-    alert('Please select a time slot.'); 
-  }
-});
-});
 /**
  * Search code START
  */

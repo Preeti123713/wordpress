@@ -34,7 +34,7 @@ get_header();
         <option value='Mandarin'>Mandarin</option>
       </select>
       <span class="error" id="language_err"></span>
-      <button id='search-button' type='submit'>Search</button>
+      <button class="search-btn" id='search-button' type='submit'>Search</button>
     </form>
     <div id='search-results'>
       <!-- Display search results here -->

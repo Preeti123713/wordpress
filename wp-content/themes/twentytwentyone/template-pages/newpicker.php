@@ -7,7 +7,7 @@ $count = count($teachers);
 ?>
 <form id ="date_time" method="GET" action="<?php echo get_permalink(48) ?>">
     
-<input type="hidden" name="selectdate" id="selectdate" >
+<input type="hidden" name="selectdate[]" id="selectdate" >
 <!-- <input type="hidden" name="selecttime" id="selecttime_" value=""> -->
     
     <?php
@@ -33,7 +33,7 @@ $count = count($teachers);
             for ($j = 0; $j < count($hours); $j++) {
               echo '<fieldset id="hour_' . ($j + 1) . '_' . $i . '">';
               foreach ($hours[$j] as $hour) {
-                echo '<input type="radio" name="time_'.$i.'"  value="' . $hour . '"';
+                echo '<input type="radio" name="time_'.$i.'"  value="' . $hour . '"  id="time_'.$i.'"';
                 // if ($hour === "9 AM") {
                 //   // echo ' checked';
                 // }

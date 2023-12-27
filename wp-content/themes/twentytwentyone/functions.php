@@ -722,7 +722,7 @@ add_action('init', 'teacher_init');
 function enqueue_custom_styles()
 {
 	wp_enqueue_style('custom', get_template_directory_uri() . './assets/css/custom.css', array(), '1.0', 'all');
-	wp_enqueue_style('bootstrap-css', get_template_directory_uri() . './assets/css/bootstrap.min.css', array(), '1.0', 'all');
+	wp_enqueue_style('bootstrap-css','https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css', array(), '1.0', 'all');
 	wp_enqueue_style('jquery-ui-css', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css', array(), '1.0', 'all');
 }
 add_action('wp_enqueue_scripts', 'enqueue_custom_styles');
@@ -733,7 +733,7 @@ function enqueue_custom_js()
 	wp_enqueue_script('script', get_template_directory_uri() . '/assets/js/script.js', array('jquery'), '1.0', true);
 	wp_enqueue_script('jquery-ui-js', 'https://code.jquery.com/ui/1.12.1/jquery-ui.js', array('jquery'), '1.0', true);
 	wp_enqueue_script('popper', 'https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js', array('jquery'), '1.0', true);
-	wp_enqueue_script('bootstrap-js', 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js', array('jquery'), '1.0', true);
+	wp_enqueue_script('bootstrap-js', 'https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js', array('jquery'), '1.0', true);
 
 	$ajax_data = array(
 		'ajax_url' => admin_url('admin-ajax.php'),

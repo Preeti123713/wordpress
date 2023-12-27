@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+ @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
 *{
     margin: 0;
     padding: 0;
@@ -275,7 +275,7 @@ nav ul li a:hover
     font-size: 28px;
 } */
 
-#login-form
+ #login-form
 {
     display: none;
 }
@@ -358,20 +358,19 @@ nav ul li a:hover
 .check-box
 {
 	margin: 30px 10px 34px 0;
-}
-/* span {   make sure give different class to this span
+} 
+span .navbar-span {  
 	color:#777;
 	font-size:12px;
 	bottom:68px;
 	position:absolute;
-} */
+} 
 .calendar-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
-
-#login {
+ #login {
 	left:50px;
 }
 
@@ -416,18 +415,68 @@ button[type="submit"] {
     color: white;
     border: none;
     cursor: pointer;
-    margin-top: 25px;
-}
+    margin-top: 25px; 
+ } 
+
 .timeperiod {
   margin-top: 25px;
   margin-left: 40px;
 }
-.button {
+/* .button {
   margin-top: 25px;
-}
+} */
 #wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 20px;
+}
+/* Basic styling */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar {
+  background-color: #333;
+  color: #fff;
+}
+
+.navbar ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+}
+
+.navbar ul li {
+  margin-right: 15px;
+}
+
+.navbar ul li a {
+  text-decoration: none;
+  color: #fff;
+}
+
+.forms-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.form {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 300px;
+}
+
+.form h2 {
+  margin-bottom: 20px;
+} 
+.header {
+  float: right;
+  width: 50%; /* Adjust the width as needed */
 }
