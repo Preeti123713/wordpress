@@ -722,18 +722,18 @@ add_action('init', 'teacher_init');
 function enqueue_custom_styles()
 {
 	wp_enqueue_style('custom', get_template_directory_uri() . './assets/css/custom.css', array(), '1.0', 'all');
-	wp_enqueue_style('bootstrap-css','https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css', array(), '1.0', 'all');
+	wp_enqueue_style('bootstrap-css', 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css', array(), '1.0', 'all');
 	wp_enqueue_style('jquery-ui-css', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css', array(), '1.0', 'all');
 }
 add_action('wp_enqueue_scripts', 'enqueue_custom_styles');
 
 function enqueue_custom_js()
 {
-	wp_enqueue_script('jqueryxv', 'https://code.jquery.com/jquery-3.6.0.js', array(), '1.0', true);
+	wp_enqueue_script('jqueryxv', 'https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js', array(), '1.0', true);
 	wp_enqueue_script('script', get_template_directory_uri() . '/assets/js/script.js', array('jquery'), '1.0', true);
 	wp_enqueue_script('jquery-ui-js', 'https://code.jquery.com/ui/1.12.1/jquery-ui.js', array('jquery'), '1.0', true);
-	wp_enqueue_script('popper', 'https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js', array('jquery'), '1.0', true);
-	wp_enqueue_script('bootstrap-js', 'https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js', array('jquery'), '1.0', true);
+	wp_enqueue_script('popper', "https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js", array('jquery'), '1.0', true);
+	wp_enqueue_script('bootstrap-js', 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js', array('jquery'), '1.0', true);
 
 	$ajax_data = array(
 		'ajax_url' => admin_url('admin-ajax.php'),
@@ -766,47 +766,65 @@ add_action('wp_ajax_nopriv_register_user', 'register_user');
 // Login Function
 function ajax_login()
 {
-	$email = $_POST['login_email'];
-	$password = $_POST['password'];
+	$creds = array(
+		'user_login' => $_POST['email'],
+		'user_password' => $_POST['password'],
+		'remember' => true
+	);
 
-	$user = wp_authenticate($email, $password);
-	($user);
-
+	$user = wp_signon($creds);
 	if (is_wp_error($user)) {
-		echo json_encode(array('loggedin' => false, 'message' => 'Invalid username or password.'));
+		echo $user->get_error_message();
+		exit();
 	} else {
-		wp_set_current_user($user->ID);
-		wp_set_auth_cookie($user->ID);
-		echo json_encode(array('loggedin' => true, 'message' => 'Login successful.'));
+		echo "login successful";
 	}
-	exit();
 }
-// Registration Function
 function register_user()
 {
 	$email = sanitize_email($_POST['email']);
-	$password = $_POST['password'];
-	$first_name = $_POST['first_name'];
-	$last_name = $_POST['last_name'];
+	$username = $_POST['username'];
+	if ($_POST['password'] !== $_POST['confirm_password']) {
+		echo "Your passwords did not match";
+		exit;
+	} else {
+		$password = $_POST['password'];
+	}
 
 	$user_data = array(
 		'user_login' => $email,
 		'user_email' => $email,
 		'user_pass' => $password,
-		'first_name' => $first_name,
-		'last_name' => $last_name,
+		'username' => $username,
+		'password' => $password,
 		'role' => 'student', // Assign the role 'student' to the user
 	);
 
 	$user_id = wp_insert_user($user_data);
+
 	if (is_wp_error($user_id)) {
 		echo $user_id->get_error_message();
+		exit();
 	} else {
-		echo "Registration successful";
-	}
+		// Auto-login after successful registration
+		$creds = array(
+			'user_login' => $email,
+			'user_password' => $password,
+			'remember' => true
+		);
 
-	exit();
+		$user = wp_signon($creds);
+
+		if (is_wp_error($user)) {
+			echo $user->get_error_message();
+			exit();
+		} else {
+			echo "Registration and login successful";
+			wp_redirect(get_permalink(52));
+		}
+	}
 }
+
 add_action('custom_sort', 'custom_sort');
 
 function custom_sort($arr)

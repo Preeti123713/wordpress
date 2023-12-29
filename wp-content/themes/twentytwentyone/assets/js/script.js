@@ -1,32 +1,3 @@
-var x=document.getElementById('login');
-var y=document.getElementById('register');
-var z=document.getElementById('btn');
-
-var loginButton = document.querySelector('.login');
-// console.log(loginButton);
-var registerButton = document.querySelector('.register');
-function register()
-{
-    x.style.left='-400px';
-    y.style.left='50px';
-    z.style.left='110px';
-}
-function login()
-{
-    x.style.left='50px';
-    y.style.left='450px';
-    z.style.left='0px';
-}
-var modal = document.getElementById('login-form');
-window.onclick = function(event) 
-{
-    if (event.target == modal) 
-    {
-        modal.style.display = "none";
-    }
-}
-loginButton.addEventListener('click', login);
-registerButton.addEventListener('click', register);
 $(document).ready(function () {
   $("#center").click(function () {
     if ($("input[name='teachers[]']").is(":checked")) {
@@ -46,6 +17,55 @@ $(document).ready(function () {
     } else {
       alert('Please select a valid option and check the checkbox!');
     }
+  });
+  var payment = document.getElementById("payment");
+  if (payment) {
+    payment.disabled = true;
+  }
+
+  $('#login').submit(function (e) {
+    e.preventDefault()
+    var email = $('#login_email').val();
+    var password = $('#login_password').val();
+    console.log(ajax_object.ajax_url);
+    $.ajax({
+      type: 'POST',
+      url: ajax_object.ajax_url,
+      data: {
+        'action': 'ajax_login',
+        'email': email,
+        'password': password,
+        'security': ajax_object.ajax_nonce,
+      },
+      success: function (response) {
+        $('#registration-message').html(response).fadeIn(1000);
+        window.location.reload();
+      }
+    });
+  });
+  $('#register').submit(function (e) {
+    e.preventDefault()
+    var username = $('#username').val();
+    var email = $('#email').val();
+    var password = $('#password').val();
+    var confirm_password = $('#confirm-password').val();
+    //  console.log(ajax_object.ajax_url);
+    $.ajax({
+      type: 'POST',
+      url: ajax_object.ajax_url,
+      data: {
+        'action': 'register_user',
+        'username': username,
+        'email': email,
+        'password': password,
+        'confirm_password': confirm_password,
+        'security': ajax_object.ajax_nonce,
+      },
+      success: function (response) {
+        $('#registration-message').html(response).fadeIn(1000);
+        window.location.reload();
+      }
+    });
   });
 });
 
@@ -158,26 +178,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /**
 * Search code END
-*/
-
-jQuery(document).ready(function ($) {
-  // Register AJAX
-  $('#register-submit').on('click', function () {
-    var data = {
-      action: 'ajax_register',
-      security: ajax_auth_object.nonce,
-      username: $('#register-username').val(),
-      email: $('#register-email').val(),
-      password: $('#register-password').val(),
-    };
-
-    $.post(ajax_auth_object.ajaxurl, data, function (response) {
-      var result = JSON.parse(response);
-      $('#register-message').html(result.message);
-
-      if (result.registered) {
-        location.reload();
-      }
-    });
-  });
-});
+*/ 

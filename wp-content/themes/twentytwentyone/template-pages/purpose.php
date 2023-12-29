@@ -1,6 +1,7 @@
 <?php
 /* Template Name: purpose*/
 get_header();
+print_r($_GET);
 $Teacher = $_GET['teachers'];
 // print_r($Teacher);
 ?>
@@ -34,11 +35,11 @@ $Teacher = $_GET['teachers'];
                                 <label class='form-check-label' for='exampleCheck1'>Suffering from chronic disease</label>
                             </div>
                             <div class='form-check'>
-                                <input type='checkbox' class='form-check-input' id='purpose_id' name="purpose[]" value="unable to attend offline class due to some personal reasons">
+                                <input type='checkbox' class='form-check-input' id='purpose_id' name="purpose[]" value="out of town">
                                 <label class='form-check-label' for='exampleCheck1'>out of town</label>
                             </div>
                             <div class='form-check'>
-                                <input type='checkbox' class='form-check-input' id='purpose_id' name="purpose[]">
+                                <input type='checkbox' class='form-check-input' id='purpose_id' name="purpose[]" value="unable to attend offline class due to some personal reasons">
                                 <label class='form-check-label' for='exampleCheck1'>unable to attend offline class due to some personal reasons</label>
                             </div>
                             <div class='timeperiod'>

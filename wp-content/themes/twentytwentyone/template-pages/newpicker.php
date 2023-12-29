@@ -1,16 +1,20 @@
 <?php
 get_header();
+print_r($_GET['purpose']);
+$purpose = $_GET['purpose'];
+$timeperiod = $_GET['time_period'];
 $teachers = $_GET['teachers'];
 $count = count($teachers);
 
-
 ?>
 <form id ="date_time" method="GET" action="<?php echo get_permalink(48) ?>">
-    
-<input type="hidden" name="selectdate[]" id="selectdate" >
-<!-- <input type="hidden" name="selecttime" id="selecttime_" value=""> -->
-    
-    <?php
+<input type="hidden" name="selectdate[]" id="selectdate">
+<input type="hidden" name="timeperiod" value="<?php echo $timeperiod; ?>">
+<?php foreach($purpose as $value)
+{ ?>
+<input type="hidden" name="purpose[]" value="<?php echo $value; ?>">
+<?php } ?>
+<?php
       foreach ($teachers as $value) { ?>
         <input type="hidden" name="teachers[]" value="<?php echo $value ?>">
       <?php } 

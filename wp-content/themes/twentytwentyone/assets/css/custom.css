@@ -13,7 +13,6 @@
     background: #fff;
   }
   nav{
-    background: #1b1b1b;
     width: 100%;
   }
   .img{
@@ -269,16 +268,6 @@ nav ul li a:hover
 {
     color: aqua;
 }
-/* a {  make sure give different class to this a
-    text-decoration: none;
-    color: palevioletred;
-    font-size: 28px;
-} */
-
- #login-form
-{
-    display: none;
-}
 .form-box
 {
   width:380px;
@@ -370,30 +359,6 @@ span .navbar-span {
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
- #login {
-	left:50px;
-}
-
-#login input
-{
-	color:white;
-	font-size:15;
-}
-#register
-{
-	left:450px;
-}
-#register input
-{
-	color:white;
-	font-size: 15;
-}
-.billing {
-    width: 300px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
 form {
     display: flex;
     flex-direction: column;
@@ -422,41 +387,13 @@ button[type="submit"] {
   margin-top: 25px;
   margin-left: 40px;
 }
-/* .button {
-  margin-top: 25px;
-} */
 #wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 20px;
 }
-/* Basic styling */
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-}
 
-.navbar {
-  background-color: #333;
-  color: #fff;
-}
-
-.navbar ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-}
-
-.navbar ul li {
-  margin-right: 15px;
-}
-
-.navbar ul li a {
-  text-decoration: none;
-  color: #fff;
-}
 
 .forms-container {
   display: flex;
@@ -479,4 +416,11 @@ body {
 .header {
   float: right;
   width: 50%; /* Adjust the width as needed */
+}
+.billing{
+  float: right;
+}
+a.nav-item.nav-link.active {
+  background-color: black;
+  color: #ffff;
 }
