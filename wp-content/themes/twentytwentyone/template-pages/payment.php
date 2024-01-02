@@ -2,7 +2,8 @@
 /* Template Name: Payment */
 get_header();
 print_r($_GET);
-$teachers = $_GET['teachers'];
+$result= json_decode(base64_decode($_GET['teacherdataa'][0]));
+// print_r($result);
 ?>
 <div class="container">
 	<?php
@@ -64,9 +65,9 @@ $teachers = $_GET['teachers'];
 </div>
 <div class="container">
 <div class="details">
-<?php foreach ($teachers as $teacher) { ?>
-		<h4>Teacher`s Name: <?php echo get_the_title($teacher) ?> </h4>
-		<p>Selected Plan: <?php ?></p>
+<?php foreach ($result as $res=> $value) { ?>
+		<h4>Teacher`s Name: <?php echo get_the_title($res) ?> </h4>
+		<p>Selected Plan: <?php echo $_GET['pplan_'. $res]; ?></p>
 		<p>Total Amount: <?php ?></p>
 <?php } ?>
 </div>

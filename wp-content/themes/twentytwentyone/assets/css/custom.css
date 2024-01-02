@@ -424,3 +424,6 @@ a.nav-item.nav-link.active {
   background-color: black;
   color: #ffff;
 }
+.details{
+  float:left;
+}

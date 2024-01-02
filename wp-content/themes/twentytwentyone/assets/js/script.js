@@ -1,11 +1,16 @@
 $(document).ready(function () {
+    $('input[name="hiddenInput"]').on('change', function() {
+    var priceValue = $(this).attr("data-price");
+    alert(priceValue);
+    $('#hiddenPrice').val(priceValue);
+  });
   $("#center").click(function () {
     if ($("input[name='teachers[]']").is(":checked")) {
       alert("Check box in Checked");
       $("#teacherlisting").submit();
     } else {
       alert("Check box is Unchecked");
-    }
+    } 
   });
   $("#purpose").click(function () {
     var selectedOption = $('#inputState').val();
@@ -22,7 +27,6 @@ $(document).ready(function () {
   if (payment) {
     payment.disabled = true;
   }
-
   $('#login').submit(function (e) {
     e.preventDefault()
     var email = $('#login_email').val();
@@ -178,4 +182,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /**
 * Search code END
-*/ 
+*/
