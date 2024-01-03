@@ -1,8 +1,7 @@
 <?php
 /* Template Name: Payment */
 get_header();
-print_r($_GET);
-$result= json_decode(base64_decode($_GET['teacherdataa'][0]));
+$result = json_decode(base64_decode($_GET['teacherdataa'][0]));
 // print_r($result);
 ?>
 <div class="container">
@@ -63,40 +62,41 @@ $result= json_decode(base64_decode($_GET['teacherdataa'][0]));
 		</div>
 	</div>
 </div>
-<div class="container">
-<div class="details">
-<?php foreach ($result as $res=> $value) { ?>
-		<h4>Teacher`s Name: <?php echo get_the_title($res) ?> </h4>
-		<p>Selected Plan: <?php echo $_GET['pplan_'. $res]; ?></p>
-		<p>Total Amount: <?php ?></p>
-<?php } ?>
-</div>
-<div class="billing" id="billing-form">
-	
-	<h2 class=""></h2>
-	<form id="" method="post">
-		<div class="form-group">
-			<label for="name">Name</label>
-			<input type="text" class="form-control" id="name" name="name">
-		</div>
-		<div class="form-group">
-			<label for="amount">Total Amount</label>
-			<input type="number" class="form-control" id="amount" name="amount">
-		</div>
-		<div class="form-group">
-			<label for="card-number">Card Number</label>
-			<input type="number" class="form-control" id="card-number" name="card-number">
-		</div>
-		<div class="form-group">
-			<label for="cvc">CVC</label>
-			<input type="number" class="form-control" id="cvc" name="cvc">
-		</div>
-		<div class="form-group">
-			<label for="expiry-date">Expiry Date</label>
-			<input type="date" class="form-control" id="expiry-date" name="expiry-date">
-		</div>
-		<button type="submit" class="btn btn-primary" id="payment">Submit</button>
-	</form>
-</div>
+<div class="container my-5">
+	<div class="details">
+		<?php foreach ($result as $res => $value) { ?>
+			<h4>Teacher`s Name: <?php echo get_the_title($res) ?> </h4>
+			<p>Selected Plan: <?php echo $_GET['pplan_' . $res]; ?></p>
+			<p>Total Amount: <?php echo $_GET['price_' . $res] ?></p>
+		<?php } ?>
+	</div>
+	<div class="billing" id="billing-form">
+
+		<h2 class=""></h2>
+		<form id="payment-form" method="post">
+			<div class="form-group">
+				<label for="name">Name</label>
+				<div class="input-group">
+					<input type="text" id="name" class="form-control" name="name" placeholder="Enter The name" autocomplete="name" required autofocus />
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="amount">Amount</label>
+				<input type="number" class="form-control" id="amount" name="amount" placeholder="Enter The Amount" autocomplete="number" required />
+			</div>
+			<div class="form-group">
+				<label for="card-element">
+					Credit or debit card
+				</label>
+				<div id="card-element">
+					<!-- A Stripe Element will be inserted here. -->
+				</div>
+				<div id="card-errors" role="alert"></div>
+			</div>
+
+
+			<input type="submit" value="Submit" class="btn btn-primary" id="payment">
+		</form>
+	</div>
 </div>
 <?php wp_footer(); ?>

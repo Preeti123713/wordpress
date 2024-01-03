@@ -730,10 +730,13 @@ add_action('wp_enqueue_scripts', 'enqueue_custom_styles');
 function enqueue_custom_js()
 {
 	wp_enqueue_script('jqueryxv', 'https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js', array(), '1.0', true);
+	wp_enqueue_script('stripe', 'https://js.stripe.com/v3/', array(), null,false);
 	wp_enqueue_script('script', get_template_directory_uri() . '/assets/js/script.js', array('jquery'), '1.0', true);
 	wp_enqueue_script('jquery-ui-js', 'https://code.jquery.com/ui/1.12.1/jquery-ui.js', array('jquery'), '1.0', true);
 	wp_enqueue_script('popper', "https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js", array('jquery'), '1.0', true);
 	wp_enqueue_script('bootstrap-js', 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js', array('jquery'), '1.0', true);
+	wp_enqueue_script('creditCardValidator', 'https://cdnjs.cloudflare.com/ajax/libs/jquery-creditcardvalidator/1.0.0/jquery.creditCardValidator.js', array('jquery'), '1.0', true);
+
 
 	$ajax_data = array(
 		'ajax_url' => admin_url('admin-ajax.php'),

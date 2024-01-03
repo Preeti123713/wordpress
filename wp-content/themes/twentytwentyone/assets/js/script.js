@@ -1,8 +1,63 @@
 $(document).ready(function () {
-    $('input[name="hiddenInput"]').on('change', function() {
-    var priceValue = $(this).attr("data-price");
-    alert(priceValue);
-    $('#hiddenPrice').val(priceValue);
+  var stripe = Stripe('pk_test_51OUNypSGWzwjArE7IufmsMR1oJ2kmwaiUmDJhlRSwwSTf8fzcndxv1UdJhWU7HEBfBcvRw3K65Ouppgk3DkgEIEv00DkfmhyZX'); // Replace with your Stripe public key
+  var elements = stripe.elements();
+  var cardElement = elements.create('card');
+cardElement.mount('#card-element');
+var form = document.getElementById('payment-form');
+  var errorElement = document.getElementById('card-errors');
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    stripe.createToken(cardElement).then(function(result) {
+      if (result.error) {
+        errorElement.textContent = result.error.message;
+      } else {
+        // Token successfully created
+        // You can now use result.token.id to access the token
+        console.log(result.token.id);
+        $("#payment-form").submit(function (event) {
+          event.preventDefault(); // Prevent the default form submission
+
+          var form$ = $(this); // Reference to the current form
+          var token = result.token.id;
+          form$.append("<input type='hidden' name='stripeToken' value='" + token + "' />");
+            $(form$).on('submit', function(event) {
+                event.preventDefault();
+        
+                var formData = form$.serialize();
+        
+                $.ajax({
+                    type: 'POST',
+                    url: 'stripe.php', // Replace with the actual path to your stripe.php file
+                    data: formData,
+                    success: function(response) {
+                        // Handle the success response here
+                        console.log('Payment submitted successfully.');
+                        console.log(response);
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle errors here
+                        console.error(error);
+                    }
+                });
+            });
+        });
+        
+        });
+      }
+    });
+  });
+
+  if (typeof is_user_logged_in !== 'undefined' && is_user_logged_in) {
+    // Disable a specific element by its ID or class
+    $('#payment').prop('disabled', true); // Change 'elementToDisable' to your actual element ID or class
+  } else {
+    $('#payment').prop('disabled', false);
+  }
+  $(".dynamicRadio").on('change', function () {
+    var priceValue = $(this).data("price"); // Use data() to retrieve 'data-price' value
+    var teacherId = $(this).attr("name").split("_").pop(); // Extract the unique identifier from the radio button ID
+    $('#hiddenPrice_' + teacherId).val(priceValue); // Set value for the corresponding hidden field
   });
   $("#center").click(function () {
     if ($("input[name='teachers[]']").is(":checked")) {
@@ -10,7 +65,7 @@ $(document).ready(function () {
       $("#teacherlisting").submit();
     } else {
       alert("Check box is Unchecked");
-    } 
+    }
   });
   $("#purpose").click(function () {
     var selectedOption = $('#inputState').val();
@@ -23,10 +78,8 @@ $(document).ready(function () {
       alert('Please select a valid option and check the checkbox!');
     }
   });
-  var payment = document.getElementById("payment");
-  if (payment) {
-    payment.disabled = true;
-  }
+  // var payment = document.getElementById("payment");
+
   $('#login').submit(function (e) {
     e.preventDefault()
     var email = $('#login_email').val();
@@ -72,6 +125,8 @@ $(document).ready(function () {
     });
   });
 });
+
+
 
 /**
  * Datepicker code

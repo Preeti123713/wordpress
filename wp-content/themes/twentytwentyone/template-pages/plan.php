@@ -15,12 +15,11 @@ $teacherdata = [];
 ?>
 <div class="container">
     <form method="GET" action="<?php echo get_permalink(52) ?>">
-    <input type="hidden" name="purposee[]" value="<?php echo $purpose[$count]; ?>">
+        <input type="hidden" name="purposee[]" value="<?php echo $purpose[$count]; ?>">
         <?php foreach ($teachers as $teacher) { ?>
-            <input type="hidden" id="hiddenPrice" name="<?php echo "price_" . $teacher; ?>" value="">
             <h5 class="text-center"><?php echo get_the_title($teacher); ?></h5>
             <?php
-            $teacherdata[$teacher] = array($date[$count],$_GET['time_' . $count]);  
+            $teacherdata[$teacher] = array($date[$count], $_GET['time_' . $count]);
             $count++;
             ?>
             <div class="container">
@@ -33,7 +32,7 @@ $teacherdata = [];
                                     $plan = $plans[$key];
                                     echo $plan;
                                     ?>
-                                 <input type="radio" name=<?php echo "pplan_" . $teacher; ?> id="plans" value="<?php echo $plan ?>" data-price="$20">
+                                    <input type="radio" name=<?php echo "pplan_" . $teacher; ?> id="plans" value="<?php echo $plan ?>" data-price="$<?php echo number_format(20 * $discountamt[$key], 2); ?>" class="dynamicRadio">
                                 </p>
                                 <p class="card-text"><?php echo $value ?></p>
                                 <p class="card-text">Price $20</p>
@@ -43,10 +42,11 @@ $teacherdata = [];
                     <?php } ?>
                 </div>
             </div>
+            <input type="hidden" id="<?php echo "hiddenPrice_". $teacher; ?>" name="<?php echo "price_" . $teacher; ?>" value="">
         <?php
         }
         ?>
-        
+
         <input type="hidden" name="teacherdataa[]" value="<?php echo base64_encode(json_encode($teacherdata)); ?>">
         <input type="hidden" name="timeperiodd" value="<?php echo $timeperiod; ?>">
         <button type="submit" class="btn btn-success btn-sm">Select</button>
