@@ -1,8 +1,11 @@
 <?php
 /* Template Name: Payment */
 get_header();
+// print_r($_GET);
+
 $result = json_decode(base64_decode($_GET['teacherdataa'][0]));
 // print_r($result);
+$total_amount = 0;
 ?>
 <div class="container">
 	<?php
@@ -67,36 +70,91 @@ $result = json_decode(base64_decode($_GET['teacherdataa'][0]));
 		<?php foreach ($result as $res => $value) { ?>
 			<h4>Teacher`s Name: <?php echo get_the_title($res) ?> </h4>
 			<p>Selected Plan: <?php echo $_GET['pplan_' . $res]; ?></p>
-			<p>Total Amount: <?php echo $_GET['price_' . $res] ?></p>
+			<p> Each Price : <?php echo $price = $_GET['price_' . $res]; ?></p>
+			<?php
+			$pricevalue = $price = substr($price, 1); // Extract characters after the dollar sign;
+			$total_amount += $pricevalue;
+			?>
 		<?php } ?>
+		<h4>
+			<p> Total Amount : <?php echo  $total_amount; ?></p>
+		</h4>
 	</div>
 	<div class="billing" id="billing-form">
 
 		<h2 class=""></h2>
-		<form id="payment-form" method="post">
-			<div class="form-group">
-				<label for="name">Name</label>
-				<div class="input-group">
-					<input type="text" id="name" class="form-control" name="name" placeholder="Enter The name" autocomplete="name" required autofocus />
-				</div>
-			</div>
-			<div class="form-group">
-				<label for="amount">Amount</label>
-				<input type="number" class="form-control" id="amount" name="amount" placeholder="Enter The Amount" autocomplete="number" required />
-			</div>
-			<div class="form-group">
-				<label for="card-element">
+		<form method="post" id="payment-form">
+			<div class="form-row">
+				<label for="payment-element">
 					Credit or debit card
 				</label>
-				<div id="card-element">
-					<!-- A Stripe Element will be inserted here. -->
-				</div>
+				<div id="payment-element">
+    <!-- Mount the Payment Element here -->
+  </div>
+
+				<!-- Used to display Element errors. -->
 				<div id="card-errors" role="alert"></div>
 			</div>
 
-
-			<input type="submit" value="Submit" class="btn btn-primary" id="payment">
+			<button>Submit Payment</button>
 		</form>
 	</div>
 </div>
 <?php wp_footer(); ?>
+<script>
+	const stripe =
+    Stripe('pk_test_51OUNypSGWzwjArE7IufmsMR1oJ2kmwaiUmDJhlRSwwSTf8fzcndxv1UdJhWU7HEBfBcvRw3K65Ouppgk3DkgEIEv00DkfmhyZX');
+const options = {
+  mode: 'payment',
+  currency: 'usd',
+  amount: 1099,
+};
+const elements = stripe.elements(options);
+const paymentElement = elements.create("payment");
+paymentElement.mount("#payment-element");
+const handleSubmit = async (event) => {
+  event.preventDefault();
+  alert("jj");
+
+  if (!stripe) {
+    // Stripe.js hasn't yet loaded.
+    // Make sure to disable form submission until Stripe.js has loaded.
+    return;
+  }
+
+  setLoading(true);
+
+  // Trigger form validation and wallet collection
+  const {error: submitError} = await elements.submit();
+  if (submitError) {
+    handleError(submitError);
+    return;
+  }
+
+  // Create the PaymentIntent and obtain clientSecret
+
+  const res = await fetch("/wp-content/themes/twentytwentyone/template-pages/stripe.php", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+  });
+
+  const {client_secret: clientSecret} = await res.json();
+
+  // Use the clientSecret and Elements instance to confirm the setup
+  const {error} = await stripe.confirmPayment({
+    elements,
+    clientSecret,
+    confirmParams: {
+      return_url: 'https://example.com/order/123/complete',
+    },
+    // Uncomment below if you only want redirect for redirect-based payments
+    // redirect: "if_required",
+  });
+
+  if (error) {
+    handleError(error);
+  }
+};
+	
+	
+</script>

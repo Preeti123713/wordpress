@@ -1,34 +1,21 @@
 <?php 
-require_once('./vendor/stripe/stripe-php/init.php');
-// print_r($_POST);
-echo $_POST[ 'stripeToken' ];
-//  if ( !empty( $_POST[ 'stripeToken' ] ) ) {
-//     require_once( './vendor/stripe/stripe-php/init.php' );
+require_once('vendor/autoload.php');
 
-//     // Get Token, Card and User Info from Form
-//     $amount = $_POST[ 'amount' ] *100;
-//     $email = $_POST[ 'email' ];
-//     $card_no = $_POST[ 'card_number' ];
-//     $card_cvc = $_POST[ 'card_cvc' ];
-//     $card_exp_month = $_POST[ 'card_exp_month' ];
-//     $card_exp_year = $_POST[ 'card_exp_year' ];
-//     $token = $_POST[ 'stripeToken' ];
+\Stripe\Stripe::setApiKey('sk_test_51OUNypSGWzwjArE7lJ5VQE88roEhuQnefI8qVx0sPYeq6sxW6N1OaWdAui73DEjDAVoRfx2xQVdrDMqpG29n2pip00RC84r9jT');
+$intent = \Stripe\PaymentIntent::create([
+    'amount' => 1099,
+    'currency' => 'usd',
+    // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
+    'automatic_payment_methods' => [
+      'enabled' => 'true',
+    ],
+  ]);
+
+
+
+print_r($intent);
+die;
+
         
-// $customer= $stripe->customers->create([
-//     'line_items' => [
-//       [
-//         'price_data' => [
-//           'currency' => 'usd',
-//           'product_data' => ['name' => 'T-shirt'],
-//           'unit_amount' => 2000,
-//         ],
-//         'quantity' => 1,
-//       ],
-//     ],
-//     'mode' => 'payment',
-//     'success_url' => 'http://localhost:4242/success.html',
-//     'cancel_url' => 'http://localhost:4242/cancel.html',
-//   ]);
-// };
 
 ?>

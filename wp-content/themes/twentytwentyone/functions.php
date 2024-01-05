@@ -742,7 +742,6 @@ function enqueue_custom_js()
 		'ajax_url' => admin_url('admin-ajax.php'),
 		'ajax_nonce' => wp_create_nonce('script-nonce'),
 	);
-
 	// Localize the script with the passed data
 	wp_localize_script('script', 'ajax_object', $ajax_data);
 }
