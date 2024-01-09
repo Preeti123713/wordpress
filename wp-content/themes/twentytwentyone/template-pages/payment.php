@@ -2,21 +2,12 @@
 /* Template Name: Payment */
 get_header();
 // print_r($_GET);
-require_once 'vendor/autoload.php';
+$purpose = $_GET['purposee'];
+$timeperiod = $_GET['timeperiodd'];
 $pplan = [];
 $pricee = [];
 $result = json_decode(base64_decode($_GET['teacherdataa'][0]));
 $total_amount = 0;
-$stripe = \Stripe\Stripe::setApiKey('sk_test_51OUNypSGWzwjArE7lJ5VQE88roEhuQnefI8qVx0sPYeq6sxW6N1OaWdAui73DEjDAVoRfx2xQVdrDMqpG29n2pip00RC84r9jT');
-$paymentIntent = \Stripe\PaymentIntent::create([
-	'amount' => '765',
-	'currency' => 'USD',
-	'description' => 'some data',
-	'automatic_payment_methods' => [
-		'enabled' => 'true'
-	],
-]);
-// echo json_encode(array('client_secret' => $paymentIntent->client_secret));
 ?>
 
 <div class="container">
@@ -77,7 +68,7 @@ $paymentIntent = \Stripe\PaymentIntent::create([
 		</div>
 	</div>
 </div>
-<div class="container my-5">
+<div class="details-container my-5">
 	<div class="details">
 		<?php foreach ($result as $res => $value) { ?>
 			<h4>Teacher`s Name: <?php echo get_the_title($res) ?> </h4>
@@ -90,84 +81,91 @@ $paymentIntent = \Stripe\PaymentIntent::create([
 			$total_amount += $pricevalue;
 			?>
 		<?php } ?>
-		<h4>
-			<p> Total Amount : <?php echo  $total_amount; ?></p>
-		</h4>
 	</div>
 	<?php
-	$teacherddata = array($result, $pplan, $pricee);
 	$myArray = json_decode(json_encode($result), true);
-	echo "<pre>";
+	// print_r($myArray);
+	// echo "<pre>";
 	$resultNew = [];
 
 	foreach ($myArray as $key => $value) {
 		$resultNew[$key] = array($pplan[$key], $value[0], $value[1], $pricee[$key]);
 	}
+	$newteacherdata = array($resultNew, $timeperiod, $purpose[0]);
 
 	?>
-	<div class="billing" id="billing-form">
+	<div class="billing">
+		<form id="payment-form" method="post">
+			<div class="mb-3">
+				<label for="name" class="form-label">Name:</label>
+				<input type="text" class="form-control" id="name" name="name" required>
+			</div>
 
-		<h2 class=""></h2>
-		<form id="payment-form">
-			<div id="link-authentication-element">
-				<!-- Elements will create authentication element here -->
+			<div class="mb-3">
+				<label for="email" class="form-label">Email:</label>
+				<input type="email" class="form-control" id="billing_email" name="bill_email" required>
 			</div>
-			<div id="payment-element">
-				<!-- Elements will create form elements here -->
+
+			<div class="mb-3">
+				<label for="contact" class="form-label">Contact No:</label>
+				<input type="text" class="form-control" id="contact" name="contact" required>
 			</div>
-			<button id="submit">Pay now</button>
-			<div id="error-message">
-				<!-- Display error message to your customers here -->
+
+			<div class="mb-3">
+				<label for="card_no" class="form-label">Card No:</label>
+				<input type="text" class="form-control" id="card_no" name="card_no" required maxlength="16">
 			</div>
-			<input type="hidden" name="$teacherddatanew[]" value="<?php echo base64_encode(json_encode($resultNew)); ?>">
+
+			<div class="mb-3">
+				<label for="cvc" class="form-label">CVC:</label>
+				<input type="text" class="form-control" id="cvc" name="cvc" required maxlength="3">
+			</div>
+
+			<div class="mb-3">
+				<label for="expiration-month" class="form-label">Expiration Month:</label>
+				<select class="form-control" id="expiration-month" name="expiration-month" required>
+					<option value="">-- Select Month --</option>
+					<option value="01">January</option>
+					<option value="02">February </option>
+					<option value="03">March</option>
+					<option value="04">April</option>
+					<option value="05">May</option>
+					<option value="06">June</option>
+					<option value="07">July</option>
+					<option value="08">August</option>
+					<option value="09">September</option>
+					<option value="10">October</option>
+					<option value="11">November</option>
+					<option value="12">December</option>
+				</select>
+			</div>
+
+			<div class="mb-3">
+				<label for="expiration-year" class="form-label">Expiration Year:</label>
+				<select class="form-control" id="expiration-year" name="expiration-year" required>
+					<option value="">-- Select Year --</option>
+					<option value="24"> 2024</option>
+					<option value="25"> 2025</option>
+					<option value="26"> 2026</option>
+					<option value="27"> 2027</option>
+					<option value="28"> 2028</option>
+					<option value="30"> 2030</option>
+					<option value="31"> 2031</option>
+					<option value="32"> 2032</option>
+					<option value="33"> 2033</option>
+				</select>
+			</div>
+
+			<div class="mb-3">
+				<label for="amount" class="form-label">Amount:</label>
+				<input type="text" class="form-control" id="amount" name="amount" readonly value="<?php echo $total_amount; ?>">
+			</div>
+
+			<button type="submit" class="btn btn-primary">Submit</button>
+			<input type="hidden" name="action" value="create_payment_intent_callback">
+			<input type="hidden" name="data" value="<?php echo base64_encode(json_encode($newteacherdata)); ?>">
 		</form>
-
-		<div id="messages" role="alert" style="display: none;"></div>
-
+		<div id="response"></div>
 	</div>
-	<?php wp_footer(); ?>
-	<script>
-		const stripe = Stripe('pk_test_51OUNypSGWzwjArE7IufmsMR1oJ2kmwaiUmDJhlRSwwSTf8fzcndxv1UdJhWU7HEBfBcvRw3K65Ouppgk3DkgEIEv00DkfmhyZX');
-		const elements = stripe.elements({
-			clientSecret: '<?= $paymentIntent->client_secret ?>'
-		})
-		// Create and mount the Payment Element
-		const paymentElement = elements.create('payment');
-		paymentElement.mount('#payment-element');
-		const form = document.getElementById('payment-form');
-		form.addEventListener('submit', async (event) => {
-			event.preventDefault();
-
-			const {
-				error
-			} = await stripe.confirmPayment({
-				//`Elements` instance that was used to create the Payment Element
-				elements,
-				confirmParams: {
-					// return_url: 'http://localhost/wordpress/wp-content/themes/twentytwentyone/template-pages/create_payment.php',
-					return_url: 'http://localhost/wordpress/wp-content/themes/twentytwentyone/template-pages/create_payment_intent.php'
-				},
-			});
-
-			if (error) {
-				const messageContainer = document.querySelector('#error-message');
-				messageContainer.textContent = error.message;
-			}
-			else {
-                    const formData = $(this).serialize();
-					$.ajax({
-						type: 'Post',
-						url:"http://localhost/wordpress/wp-content/themes/twentytwentyone/template-pages/create_payment_intent.php",
-						data: formData,
-						success:function(data){
-							alert(data);
-						},
-						error:function(error){
-							alert(error);
-						}
-
-					
-					})
-                }
-            });
-	</script>
+</div>
+<?php wp_footer(); ?>

@@ -856,3 +856,34 @@ function custom_sort($arr)
 	$new_result = array_merge($three, $two, $one);
 	return $new_result;
 }
+// Add AJAX action for creating payment intent
+add_action('wp_ajax_create_payment_intent_callback', 'create_payment_intent_callback');
+add_action('wp_ajax_nopriv_create_payment_intent_callback', 'create_payment_intent_callback');
+
+function create_payment_intent_callback() {
+	// print_r($_POST);
+	global $wpdb;     
+	$table_name = $wpdb->prefix . 'payment';     
+// Data to be inserted
+$n = 16 ;
+$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $randomString = '';
+ 
+    for ($i = 0; $i < $n; $i++) {
+        $index = rand(0, strlen($characters) - 1);
+        $randomString .= $characters[$index];
+    }
+//  echo $randomString;
+$trans_id = $randomString;
+$user_id =  get_current_user_id();
+$currentDateTime = date('Y-m-d H:i:s'); // Format: Year-Month-Day Hours:Minutes:Seconds
+$payment_status = "SUCCESS";
+$amount = $_POST['amount'];
+// $encodedData = $_POST['data']; 
+// var_dump($encodedData);
+$wpdb->insert($table_name, array('tran_id' => $trans_id, 'user_id' => $user_id,'payment_date_time'=>$currentDateTime,'payment_status'=>$payment_status,'totalamount'=>$amount)
+,array('%s', '%s', '%s','%s', '%s', '%s')); 
+// $decodedData = json_decode(base64_decode($encodedData),);
+// $teacher_array = json_decode(json_encode($decodedData), true);
+}
+

@@ -73,7 +73,26 @@ $(document).ready(function () {
         }
       });
     });
+		$("#payment-form").submit(function(event) {
+      event.preventDefault(); // Prevent the default form submission
+  
+      var formData = $(this).serialize();    
+      $.ajax({
+          type: 'post',
+          url: ajax_object.ajax_url, // Use admin-ajax.php as the URL
+          data: formData,
+          success: function(response) {
+         
+              $('#response').html(response);
+          },
+          error: function(error) {
+    
+              $('#response').html(error);
+          }
+      });
   });
+  
+	});
 
 
 

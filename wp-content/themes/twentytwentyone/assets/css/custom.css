@@ -418,12 +418,17 @@ button[type="submit"] {
   width: 50%; /* Adjust the width as needed */
 }
 .billing{
-  float: right;
+  flex:1;
 }
 a.nav-item.nav-link.active {
   background-color: black;
   color: #ffff;
 }
 .details{
-  float:left;
+  flex:1
 }
+.details-container {
+  display: flex;
+  
+}
+
