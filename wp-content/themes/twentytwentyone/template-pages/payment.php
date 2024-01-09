@@ -2,11 +2,23 @@
 /* Template Name: Payment */
 get_header();
 // print_r($_GET);
-
+require_once 'vendor/autoload.php';
+$pplan = [];
+$pricee = [];
 $result = json_decode(base64_decode($_GET['teacherdataa'][0]));
-// print_r($result);
 $total_amount = 0;
+$stripe = \Stripe\Stripe::setApiKey('sk_test_51OUNypSGWzwjArE7lJ5VQE88roEhuQnefI8qVx0sPYeq6sxW6N1OaWdAui73DEjDAVoRfx2xQVdrDMqpG29n2pip00RC84r9jT');
+$paymentIntent = \Stripe\PaymentIntent::create([
+	'amount' => '765',
+	'currency' => 'USD',
+	'description' => 'some data',
+	'automatic_payment_methods' => [
+		'enabled' => 'true'
+	],
+]);
+// echo json_encode(array('client_secret' => $paymentIntent->client_secret));
 ?>
+
 <div class="container">
 	<?php
 	if (is_user_logged_in()) {
@@ -69,7 +81,9 @@ $total_amount = 0;
 	<div class="details">
 		<?php foreach ($result as $res => $value) { ?>
 			<h4>Teacher`s Name: <?php echo get_the_title($res) ?> </h4>
-			<p>Selected Plan: <?php echo $_GET['pplan_' . $res]; ?></p>
+			<?php $pplan[$res] = $_GET['pplan_' . $res];   ?>
+			<p>Selected Plan: <?php echo $_GET['pplan_' . $res];  ?></p>
+			<?php $pricee[$res] = $_GET['price_' . $res];   ?>
 			<p> Each Price : <?php echo $price = $_GET['price_' . $res]; ?></p>
 			<?php
 			$pricevalue = $price = substr($price, 1); // Extract characters after the dollar sign;
@@ -80,81 +94,80 @@ $total_amount = 0;
 			<p> Total Amount : <?php echo  $total_amount; ?></p>
 		</h4>
 	</div>
+	<?php
+	$teacherddata = array($result, $pplan, $pricee);
+	$myArray = json_decode(json_encode($result), true);
+	echo "<pre>";
+	$resultNew = [];
+
+	foreach ($myArray as $key => $value) {
+		$resultNew[$key] = array($pplan[$key], $value[0], $value[1], $pricee[$key]);
+	}
+
+	?>
 	<div class="billing" id="billing-form">
 
 		<h2 class=""></h2>
-		<form method="post" id="payment-form">
-			<div class="form-row">
-				<label for="payment-element">
-					Credit or debit card
-				</label>
-				<div id="payment-element">
-    <!-- Mount the Payment Element here -->
-  </div>
-
-				<!-- Used to display Element errors. -->
-				<div id="card-errors" role="alert"></div>
+		<form id="payment-form">
+			<div id="link-authentication-element">
+				<!-- Elements will create authentication element here -->
 			</div>
-
-			<button>Submit Payment</button>
+			<div id="payment-element">
+				<!-- Elements will create form elements here -->
+			</div>
+			<button id="submit">Pay now</button>
+			<div id="error-message">
+				<!-- Display error message to your customers here -->
+			</div>
+			<input type="hidden" name="$teacherddatanew[]" value="<?php echo base64_encode(json_encode($resultNew)); ?>">
 		</form>
+
+		<div id="messages" role="alert" style="display: none;"></div>
+
 	</div>
-</div>
-<?php wp_footer(); ?>
-<script>
-	const stripe =
-    Stripe('pk_test_51OUNypSGWzwjArE7IufmsMR1oJ2kmwaiUmDJhlRSwwSTf8fzcndxv1UdJhWU7HEBfBcvRw3K65Ouppgk3DkgEIEv00DkfmhyZX');
-const options = {
-  mode: 'payment',
-  currency: 'usd',
-  amount: 1099,
-};
-const elements = stripe.elements(options);
-const paymentElement = elements.create("payment");
-paymentElement.mount("#payment-element");
-const handleSubmit = async (event) => {
-  event.preventDefault();
-  alert("jj");
+	<?php wp_footer(); ?>
+	<script>
+		const stripe = Stripe('pk_test_51OUNypSGWzwjArE7IufmsMR1oJ2kmwaiUmDJhlRSwwSTf8fzcndxv1UdJhWU7HEBfBcvRw3K65Ouppgk3DkgEIEv00DkfmhyZX');
+		const elements = stripe.elements({
+			clientSecret: '<?= $paymentIntent->client_secret ?>'
+		})
+		// Create and mount the Payment Element
+		const paymentElement = elements.create('payment');
+		paymentElement.mount('#payment-element');
+		const form = document.getElementById('payment-form');
+		form.addEventListener('submit', async (event) => {
+			event.preventDefault();
 
-  if (!stripe) {
-    // Stripe.js hasn't yet loaded.
-    // Make sure to disable form submission until Stripe.js has loaded.
-    return;
-  }
+			const {
+				error
+			} = await stripe.confirmPayment({
+				//`Elements` instance that was used to create the Payment Element
+				elements,
+				confirmParams: {
+					// return_url: 'http://localhost/wordpress/wp-content/themes/twentytwentyone/template-pages/create_payment.php',
+					return_url: 'http://localhost/wordpress/wp-content/themes/twentytwentyone/template-pages/create_payment_intent.php'
+				},
+			});
 
-  setLoading(true);
+			if (error) {
+				const messageContainer = document.querySelector('#error-message');
+				messageContainer.textContent = error.message;
+			}
+			else {
+                    const formData = $(this).serialize();
+					$.ajax({
+						type: 'Post',
+						url:"http://localhost/wordpress/wp-content/themes/twentytwentyone/template-pages/create_payment_intent.php",
+						data: formData,
+						success:function(data){
+							alert(data);
+						},
+						error:function(error){
+							alert(error);
+						}
 
-  // Trigger form validation and wallet collection
-  const {error: submitError} = await elements.submit();
-  if (submitError) {
-    handleError(submitError);
-    return;
-  }
-
-  // Create the PaymentIntent and obtain clientSecret
-
-  const res = await fetch("/wp-content/themes/twentytwentyone/template-pages/stripe.php", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-  });
-
-  const {client_secret: clientSecret} = await res.json();
-
-  // Use the clientSecret and Elements instance to confirm the setup
-  const {error} = await stripe.confirmPayment({
-    elements,
-    clientSecret,
-    confirmParams: {
-      return_url: 'https://example.com/order/123/complete',
-    },
-    // Uncomment below if you only want redirect for redirect-based payments
-    // redirect: "if_required",
-  });
-
-  if (error) {
-    handleError(error);
-  }
-};
-	
-	
-</script>
+					
+					})
+                }
+            });
+	</script>
