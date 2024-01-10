@@ -730,7 +730,7 @@ add_action('wp_enqueue_scripts', 'enqueue_custom_styles');
 function enqueue_custom_js()
 {
 	wp_enqueue_script('jqueryxv', 'https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js', array(), '1.0', true);
-	wp_enqueue_script('stripe', 'https://js.stripe.com/v3/', array(), null,false);
+	wp_enqueue_script('stripe', 'https://js.stripe.com/v3/', array(), null, false);
 	wp_enqueue_script('script', get_template_directory_uri() . '/assets/js/script.js', array('jquery'), '1.0', true);
 	wp_enqueue_script('jquery-ui-js', 'https://code.jquery.com/ui/1.12.1/jquery-ui.js', array('jquery'), '1.0', true);
 	wp_enqueue_script('popper', "https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js", array('jquery'), '1.0', true);
@@ -843,7 +843,6 @@ function custom_sort($arr)
 		$techpar = [$ar_level, $ar_country, $ar_language];
 		$result = array_intersect($params, $techpar);
 		$count = count($result);
-		// echo $count;
 		if ($count == 3) {
 			$three[] = $ar;
 		} elseif ($count == 2) {
@@ -860,30 +859,99 @@ function custom_sort($arr)
 add_action('wp_ajax_create_payment_intent_callback', 'create_payment_intent_callback');
 add_action('wp_ajax_nopriv_create_payment_intent_callback', 'create_payment_intent_callback');
 
-function create_payment_intent_callback() {
-	// print_r($_POST);
-	global $wpdb;     
-	$table_name = $wpdb->prefix . 'payment';     
-// Data to be inserted
-$n = 16 ;
-$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    $randomString = '';
- 
-    for ($i = 0; $i < $n; $i++) {
-        $index = rand(0, strlen($characters) - 1);
-        $randomString .= $characters[$index];
+// insert data into database using  $wpdb->insert()
+function create_payment_intent_callback()
+{
+	global $wpdb;
+
+	// Custom table names
+	$table_name = 'payment';
+	$second_table_name = 'booking';
+
+	$amount = $_POST['amount'];
+	$encodedData = $_POST['data'];
+
+	// Generate a random transaction ID
+	$trans_id = substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 16);
+
+	// Get current user ID
+	$user_id = get_current_user_id();
+
+	// Get current date and time
+	$currentDateTime = date("Y-m-d H:i:s");
+
+	// Payment status
+	$payment_status = "SUCCESS";
+
+	// Insert data into the payment table using $wpdb->insert()
+	$result =  $wpdb->insert(
+		$table_name,
+		array(
+			'tran_id' => $trans_id,
+			'user_id' => $user_id,
+			'payment_date_time' => $currentDateTime,
+			'payment_status' => $payment_status,
+			'totalamount' => $amount
+		)
+	);
+
+	if ($result) {
+		// Get the last inserted ID
+		$last_inserted_id = $wpdb->insert_id;
+
+		echo "Record inserted into the database successfully";
+
+		// Decode and process booking data
+		$decodedData = json_decode(base64_decode($encodedData), true);
+		// print_r($decodedData); die;
+		$purpose = $decodedData[1];
+		$timeperiod = $decodedData[2];
+
+		foreach ($decodedData[0] as $teacherid => $subArray) {
+			$plans = $subArray[0];
+			$booking_date_time = $subArray['date'] . " " . $subArray['time'];
+			$plan_price = $subArray[3];
+			$insert = $wpdb->insert(
+				$second_table_name,
+				array(
+					'payment_id' => $last_inserted_id,
+					'teacherid' => $teacherid,
+					'plans' => $plans,
+					'plan_price' => $plan_price,
+					'purpose' => $purpose,
+					'timeperiod' => $timeperiod,
+					'booking_date_time' => strtotime($booking_date_time)
+				)
+			);	
+		}
+		if ($insert) {
+			$user_email = wp_get_current_user()->user_email;	
+			$admin_email = get_option('admin_email');
+			$booking_id = $wpdb->insert_id;
+			// / Sending email using Sendinblue SMTP after inserting data into booking table
+		
+            echo "Record inserted into the database successfully";
+        } else {
+            echo "Error inserting record into the database" . ": " . $wpdb->last_error;
+        }
+
+    } else {
+        echo "Error inserting record into the database" . ": " . $wpdb->last_error;
     }
-//  echo $randomString;
-$trans_id = $randomString;
-$user_id =  get_current_user_id();
-$currentDateTime = date('Y-m-d H:i:s'); // Format: Year-Month-Day Hours:Minutes:Seconds
-$payment_status = "SUCCESS";
-$amount = $_POST['amount'];
-// $encodedData = $_POST['data']; 
-// var_dump($encodedData);
-$wpdb->insert($table_name, array('tran_id' => $trans_id, 'user_id' => $user_id,'payment_date_time'=>$currentDateTime,'payment_status'=>$payment_status,'totalamount'=>$amount)
-,array('%s', '%s', '%s','%s', '%s', '%s')); 
-// $decodedData = json_decode(base64_decode($encodedData),);
-// $teacher_array = json_decode(json_encode($decodedData), true);
 }
+
+// PHPMailer functions.php details
+add_action( 'phpmailer_init', 'my_smtp_phpemailer' );
+function my_smtp_phpemailer( $phpmailer ) {
+	$phpmailer->isSMTP();
+	$phpmailer->Host       = SMTP_HOST;
+	$phpmailer->SMTPAuth   = SMTP_AUTH;
+	$phpmailer->Port       = SMTP_PORT;
+	$phpmailer->Username   = SMTP_USER;
+	$phpmailer->Password   = SMTP_PASS;
+	$phpmailer->SMTPSecure = SMTP_SECURE;
+	$phpmailer->From       = SMTP_FROM;
+	$phpmailer->FromName   = SMTP_NAME;
+}
+
 
