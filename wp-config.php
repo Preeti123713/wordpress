@@ -81,19 +81,6 @@ $table_prefix = 'wp_';
  */
 define( 'WP_DEBUG', false );
 define('WP_DEBUG_DISPLAY', false);
-
-/** PHPMailer wp-config.php details */
-
-define( 'SMTP_USER',   'localhost' );    // your SMTP Username 
-define( 'SMTP_PASS',   'dkcm hryd zqsz npxm' );   // your SMTP Password 
-define( 'SMTP_HOST',   'smtp.gmail.com' );     // mail server hostname
-define( 'SMTP_FROM',   'nriya5892@gmail.com' ); // from email address 
-define( 'SMTP_NAME',   'localhost' );    // Website Name
-define( 'SMTP_PORT',   '587' );           // use SMTP port number - 25, 465 or 587
-define( 'SMTP_SECURE', 'tls' );       // for Encryption use - ssl or tls
-define( 'SMTP_AUTH',    true );       // to enable SMTP authentication use  (true or false)
-define( 'SMTP_DEBUG',   0 );  
-
 /* Add any custom values between this line and the "stop editing" line. */
 
 

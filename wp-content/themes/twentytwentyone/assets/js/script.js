@@ -83,11 +83,11 @@ $(document).ready(function () {
           data: formData,
           success: function(response) {
          
-              $('#response').html(response).fadeIn(1000);
+              $('#response').html(response).fadeOut(1000);
           },
           error: function(error) {
     
-              $('#response').html(error).fadeIn(1000);
+              $('#response').html(error).fadeOut(1000);
           }
       });
   });

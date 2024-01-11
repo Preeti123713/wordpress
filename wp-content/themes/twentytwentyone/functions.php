@@ -906,11 +906,14 @@ function create_payment_intent_callback()
 		// print_r($decodedData); die;
 		$purpose = $decodedData[1];
 		$timeperiod = $decodedData[2];
-
+		// print_r($decodedData[0]); die;
 		foreach ($decodedData[0] as $teacherid => $subArray) {
 			$plans = $subArray[0];
-			$booking_date_time = $subArray['date'] . " " . $subArray['time'];
+			$booking_date = $subArray[1];
+			$booking_time = $subArray[2];
+			$booking_date_time = $booking_date  . " " . $booking_time;
 			$plan_price = $subArray[3];
+			$teacher_name = get_the_title($teacherid);
 			$insert = $wpdb->insert(
 				$second_table_name,
 				array(
@@ -922,36 +925,56 @@ function create_payment_intent_callback()
 					'timeperiod' => $timeperiod,
 					'booking_date_time' => strtotime($booking_date_time)
 				)
-			);	
+			);
 		}
 		if ($insert) {
-			$user_email = wp_get_current_user()->user_email;	
+
+			$user_email = wp_get_current_user()->user_email;
 			$admin_email = get_option('admin_email');
-			$booking_id = $wpdb->insert_id;
-			// / Sending email using Sendinblue SMTP after inserting data into booking table
-		
-            echo "Record inserted into the database successfully";
-        } else {
-            echo "Error inserting record into the database" . ": " . $wpdb->last_error;
-        }
 
-    } else {
-        echo "Error inserting record into the database" . ": " . $wpdb->last_error;
-    }
+			if ($email == $user_email) {
+				$message .= 'Teacher Name: ' . " " . $teacher_name . "\r\n".'Booking Date: ' . " " . $booking_date ."\r\n". 'Booking Time: ' . " " . $booking_time . "\r\n". 'Thank you for the payment';
+			}else{
+				$message .= 'Teacher Name: ' . " " . $teacher_name . "\r\n". 'Booking Date: ' . " " . $booking_date ."\r\n". 'Booking Time: ' . " " . $booking_time . "\r\n". 'Your booking is confirmed';
+			}
+			$subject = "Your Booking is done";
+			$data = array(
+				"sender" => array(
+					"email" => 'preetir@graycelltech.com',
+					"name" => 'Preeti Rawat'
+				),
+				"to" => array(
+					array(
+						"email" => $user_email,
+						"name" => 'User'
+					),
+					array(
+						"email" => $admin_email,
+						"name" => 'Admin'
+					)
+				),
+				"subject" => $subject,
+
+				"htmlContent" => '<html><head></head><body><p>' . $message . '</p></p></body></html>'
+			);
+
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, 'https://api.sendinblue.com/v3/smtp/email');
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			$headers = array();
+			$headers[] = 'Accept: application/json';
+			$headers[] = 'Api-Key: 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';
+			$headers[] = 'Content-Type: application/json';
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+			$result = curl_exec($ch);
+			curl_close($ch);
+			if (curl_errno($ch)) {
+				echo 'Error:' . curl_error($ch);
+			}
+			print_r($result);
+			echo "sucess";
+		}
+	}
 }
-
-// PHPMailer functions.php details
-add_action( 'phpmailer_init', 'my_smtp_phpemailer' );
-function my_smtp_phpemailer( $phpmailer ) {
-	$phpmailer->isSMTP();
-	$phpmailer->Host       = SMTP_HOST;
-	$phpmailer->SMTPAuth   = SMTP_AUTH;
-	$phpmailer->Port       = SMTP_PORT;
-	$phpmailer->Username   = SMTP_USER;
-	$phpmailer->Password   = SMTP_PASS;
-	$phpmailer->SMTPSecure = SMTP_SECURE;
-	$phpmailer->From       = SMTP_FROM;
-	$phpmailer->FromName   = SMTP_NAME;
-}
-
-
