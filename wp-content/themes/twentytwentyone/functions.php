@@ -724,6 +724,7 @@ function enqueue_custom_styles()
 	wp_enqueue_style('custom', get_template_directory_uri() . './assets/css/custom.css', array(), '1.0', 'all');
 	wp_enqueue_style('bootstrap-css', 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css', array(), '1.0', 'all');
 	wp_enqueue_style('jquery-ui-css', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css', array(), '1.0', 'all');
+	wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css', array(), '1.0', 'all');
 }
 add_action('wp_enqueue_scripts', 'enqueue_custom_styles');
 
@@ -895,18 +896,21 @@ function create_payment_intent_callback()
 		)
 	);
 
+	$success_message = ''; // Initialize the success message
+
 	if ($result) {
 		// Get the last inserted ID
 		$last_inserted_id = $wpdb->insert_id;
 
-		echo "Record inserted into the database successfully";
+		$success_message = "Record inserted into the database successfully";
 
 		// Decode and process booking data
 		$decodedData = json_decode(base64_decode($encodedData), true);
-		// print_r($decodedData); die;
-		$purpose = $decodedData[1];
-		$timeperiod = $decodedData[2];
-		// print_r($decodedData[0]); die;
+		$purpose = $decodedData[2];
+		$timeperiod = $decodedData[1];
+		$json_purpose = json_encode($purpose);
+		$email = $message = "";
+
 		foreach ($decodedData[0] as $teacherid => $subArray) {
 			$plans = $subArray[0];
 			$booking_date = $subArray[1];
@@ -921,22 +925,23 @@ function create_payment_intent_callback()
 					'teacherid' => $teacherid,
 					'plans' => $plans,
 					'plan_price' => $plan_price,
-					'purpose' => $purpose,
+					'purpose' => $json_purpose,
 					'timeperiod' => $timeperiod,
 					'booking_date_time' => strtotime($booking_date_time)
 				)
 			);
 		}
-		if ($insert) {
 
+		if ($insert) {
 			$user_email = wp_get_current_user()->user_email;
 			$admin_email = get_option('admin_email');
 
 			if ($email == $user_email) {
-				$message .= 'Teacher Name: ' . " " . $teacher_name . "\r\n".'Booking Date: ' . " " . $booking_date ."\r\n". 'Booking Time: ' . " " . $booking_time . "\r\n". 'Thank you for the payment';
-			}else{
-				$message .= 'Teacher Name: ' . " " . $teacher_name . "\r\n". 'Booking Date: ' . " " . $booking_date ."\r\n". 'Booking Time: ' . " " . $booking_time . "\r\n". 'Your booking is confirmed';
+				$message .= 'Teacher Name: ' . " " . $teacher_name . "\r\n" . 'Booking Date: ' . " " . $booking_date . "\r\n" . 'Booking Time: ' . " " . $booking_time . "\r\n" . 'Thank you for the payment';
+			} else {
+				$message .= 'Teacher Name: ' . " " . $teacher_name . "\r\n" . 'Booking Date: ' . " " . $booking_date . "\r\n" . 'Booking Time: ' . " " . $booking_time . "\r\n" . 'Your booking is confirmed';
 			}
+
 			$subject = "Your Booking is done";
 			$data = array(
 				"sender" => array(
@@ -954,7 +959,6 @@ function create_payment_intent_callback()
 					)
 				),
 				"subject" => $subject,
-
 				"htmlContent" => '<html><head></head><body><p>' . $message . '</p></p></body></html>'
 			);
 
@@ -965,16 +969,20 @@ function create_payment_intent_callback()
 			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 			$headers = array();
 			$headers[] = 'Accept: application/json';
-			$headers[] = 'Api-Key: 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';
+			$headers[] = 'Api-Key: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';
 			$headers[] = 'Content-Type: application/json';
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 			$result = curl_exec($ch);
-			curl_close($ch);
+			// curl_close($ch);
+
 			if (curl_errno($ch)) {
 				echo 'Error:' . curl_error($ch);
 			}
-			print_r($result);
-			echo "sucess";
+			curl_close($ch);
+			// print_r($result);
+			$success_message = "success";
 		}
 	}
+
+	echo $success_message;
 }

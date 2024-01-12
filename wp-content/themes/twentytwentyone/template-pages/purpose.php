@@ -1,7 +1,7 @@
 <?php
 /* Template Name: purpose*/
 get_header();
-print_r($_GET);
+// print_r($_GET);
 $Teacher = $_GET['teachers'];
 // print_r($Teacher);
 ?>

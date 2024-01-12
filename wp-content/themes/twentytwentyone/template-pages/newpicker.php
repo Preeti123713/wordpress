@@ -1,6 +1,6 @@
 <?php
 get_header();
-print_r($_GET['purpose']);
+// print_r($_GET);
 $purpose = $_GET['purpose'];
 $timeperiod = $_GET['time_period'];
 $teachers = $_GET['teachers'];

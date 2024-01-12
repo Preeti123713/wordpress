@@ -15,8 +15,9 @@ $teacherdata = [];
 ?>
 <div class="container">
     <form method="GET" action="<?php echo get_permalink(52) ?>">
-        <input type="hidden" name="purposee[]" value="<?php echo $purpose[$count]; ?>">
-        <?php foreach ($teachers as $teacher) { ?>
+    <?php foreach ($purpose as $rose) { ?>
+        <input type="hidden" name="purposee[]" value="<?php echo $rose; ?>">
+      <?php  }  foreach ($teachers as $teacher) { ?>
             <h5 class="text-center"><?php echo get_the_title($teacher); ?></h5>
             <?php
             $teacherdata[$teacher] = array($date[$count], $_GET['time_' . $count]);

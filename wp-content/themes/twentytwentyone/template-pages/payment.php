@@ -2,10 +2,9 @@
 /* Template Name: Payment */
 get_header();
 // print_r($_GET);
-$purpose = $_GET['purposee'];
+$purpose = ($_GET['purposee']);
 $timeperiod = $_GET['timeperiodd'];
 $pplan = [];
-$pricee = [];
 $result = json_decode(base64_decode($_GET['teacherdataa'][0]));
 $total_amount = 0;
 ?>
@@ -74,7 +73,6 @@ $total_amount = 0;
 			<h4>Teacher`s Name: <?php echo get_the_title($res) ?> </h4>
 			<?php $pplan[$res] = $_GET['pplan_' . $res];   ?>
 			<p>Selected Plan: <?php echo $_GET['pplan_' . $res];  ?></p>
-			<?php $pricee[$res] = $_GET['price_' . $res];   ?>
 			<p> Each Price : <?php echo $price = $_GET['price_' . $res]; ?></p>
 			<?php
 			$pricevalue = $price = substr($price, 1); // Extract characters after the dollar sign;
@@ -84,15 +82,12 @@ $total_amount = 0;
 	</div>
 	<?php
 	$myArray = json_decode(json_encode($result), true);
-	// print_r($myArray);
-	// echo "<pre>";
 	$resultNew = [];
 
 	foreach ($myArray as $key => $value) {
-		$resultNew[$key] = array($pplan[$key], $value[0], $value[1], $pricee[$key]);
+		$resultNew[$key] = array($pplan[$key], $value[0], $value[1], $pricevalue);
 	}
-	$newteacherdata = array($resultNew, $timeperiod, $purpose[0]);
-
+	$newteacherdata = array($resultNew, $timeperiod, $purpose);
 	?>
 	<div class="billing">
 		<form id="payment-form" method="post">
@@ -108,7 +103,7 @@ $total_amount = 0;
 
 			<div class="mb-3">
 				<label for="contact" class="form-label">Contact No:</label>
-				<input type="text" class="form-control" id="contact" name="contact" required>
+				<input type="text" class="form-control" id="contact" name="contact" required maxlength="10">
 			</div>
 
 			<div class="mb-3">

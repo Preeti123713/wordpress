@@ -429,6 +429,30 @@ a.nav-item.nav-link.active {
 }
 .details-container {
   display: flex;
-  
 }
-
+.gradient-custom {
+  margin-top: 0;
+  background-color: #f093fb;
+  background: linear-gradient(to bottom right, rgba(240, 147, 251, 1), rgba(245, 87, 108, 1));
+}
+.right-inner-addon {
+  position: relative;
+}
+.right-inner-addon input {
+  padding-right: 35px !important;
+}
+.right-inner-addon  .input-group-addon{
+  position: absolute;
+  right: -30px;
+  bottom: 2px;
+  padding: 12px 12px;
+  cursor: pointer
+} 
+.right-inner-addon  .input-group-addon-minus {
+  position: absolute;
+  right: -74px;
+  bottom: 1px;
+  padding: 12px 12px;
+  cursor: pointer;
+  display: none;
+}
