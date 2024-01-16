@@ -1,131 +1,145 @@
 $(document).ready(function () {
   // Check total number elements
   $(".add").click(function () {
-    var total_element = $(".right-inner-addon").length;
-    var lastid = $(".right-inner-addon:last").attr("id");
-    var split_id = lastid ? lastid.split("_") : [0];
-    var nextindex = Number(split_id[1]) + 1;
-    var max = 5;
+    var totalElements = $(".right-inner-addon").length;
+    var lastId = $(".right-inner-addon:last").attr("id");
+    var splitId = lastId ? lastId.split("_") : [0];
+    var nextIndex = Number(splitId[1]) + 1;
+    var maxElements = 5;
 
-    if (total_element < max) {
+    if (totalElements < maxElements) {
       // Append a new div container after the last occurrence of an element with class "right-inner-addon"
-      $(".right-inner-addon:last").after("<div class='form-group right-inner-addon col-md-9' id='count_" + nextindex + "'>");
+      $(".right-inner-addon:last").after("<div class='form-group right-inner-addon col-md-9' id='count_" + nextIndex + "'>");
 
       // Add elements to the newly created div
-      $("#count_" + nextindex).append("<label for='qualification_" + nextindex + "'>Qualification</label>");
-      $("#count_" + nextindex).append("<span class='add input-group-addon'><i class='fa-solid fa-plus'></i></span>");
-      $("#count_" + nextindex).append("<span class='input-group-addon-minus'><i class='fa-solid fa-xmark'></i></span>");
-      $("#count_" + nextindex).append("<input required name='qualification' type='file' class='form-control' id='qualification_" + nextindex + "' />");
+      $("#count_" + nextIndex).append("<label for='qualification_" + nextIndex + "'>Qualification</label>");
+      $("#count_" + nextIndex).append("<span class='remove input-group-addon-minus' id='remove_" + nextIndex + "'><i class='fa-solid fa-xmark'></i></span>");
+      $("#count_" + nextIndex).append("<input required name='qualifications[]' type='file' class='form-control' id='qualification_" + nextIndex + "' />");
+      // Change the display property of the "minus" icon to block
+      $("#remove_" + nextIndex).css("display", "block");
     }
     // Remove element
-    // $('.right-inner-addon').on('click', '.remove', function () {
-
-    //   var id = this.id;
-    //   alert(id);
-    //   var split_id = id.split("_");
-    //   alert(split_id);
-    //   var deleteindex = split_id[1];
-    //   alert(deleteindex);
-
-    //   // Remove <div> with id
-    //   $("#div_" + deleteindex).remove();
-
-    // });
+    $('.right-inner-addon').on('click', '.remove', function () {
+      var id = this.id;
+      var splitId = id.split("_");
+      var deleteIndex = splitId[1];
+      // Remove <div> with id
+      $("#count_" + deleteIndex).remove();
+    });
   });
-if (typeof is_user_logged_in !== 'undefined' && is_user_logged_in) {
-  // Disable a specific element by its ID or class
-  $('#payment').prop('disabled', true); // Change 'elementToDisable' to your actual element ID or class
-} else {
-  $('#payment').prop('disabled', false);
-}
-$(".dynamicRadio").on('change', function () {
-  var priceValue = $(this).data("price"); // Use data() to retrieve 'data-price' value
-  var teacherId = $(this).attr("name").split("_").pop(); // Extract the unique identifier from the radio button ID
-  $('#hiddenPrice_' + teacherId).val(priceValue); // Set value for the corresponding hidden field
-});
-$("#center").click(function () {
-  if ($("input[name='teachers[]']").is(":checked")) {
-    alert("Check box in Checked");
-    $("#teacherlisting").submit();
+  $("#Teacher-register").submit(function (event) {
+    event.preventDefault();
+    var formData = new FormData($("#Teacher-register")[0]); //  here we create formdata object  to give whole form data including images
+    // var formData = $(this).serialize();
+    $.ajax({
+      type: 'post',
+      url: ajax_object.ajax_url,
+      data: formData,
+      cache:false,
+      contentType:false,
+      processData:false,
+      success: function (response) {
+        alert(response);
+      },
+      error: function (error) {
+        alert(error);
+      }
+    });
+  });
+  if (typeof is_user_logged_in !== 'undefined' && is_user_logged_in) {
+    // Disable a specific element by its ID or class
+    $('#payment').prop('disabled', true); // Change 'elementToDisable' to your actual element ID or class
   } else {
-    alert("Check box is Unchecked");
+    $('#payment').prop('disabled', false);
   }
-});
-$("#purpose").click(function () {
-  var selectedOption = $('#inputState').val();
-  var checkboxChecked = $("input[name='purpose[]']").is(":checked");
+  $(".dynamicRadio").on('change', function () {
+    var priceValue = $(this).data("price"); // Use data() to retrieve 'data-price' value
+    var teacherId = $(this).attr("name").split("_").pop(); // Extract the unique identifier from the radio button ID
+    $('#hiddenPrice_' + teacherId).val(priceValue); // Set value for the corresponding hidden field
+  });
+  $("#center").click(function () {
+    if ($("input[name='teachers[]']").is(":checked")) {
+      alert("Check box in Checked");
+      $("#teacherlisting").submit();
+    } else {
+      alert("Check box is Unchecked");
+    }
+  });
+  $("#purpose").click(function () {
+    var selectedOption = $('#inputState').val();
+    var checkboxChecked = $("input[name='purpose[]']").is(":checked");
 
-  if (selectedOption && selectedOption !== 'Choose Time Period' && checkboxChecked) {
-    alert('Option is selected: ' + selectedOption + ' ' + 'checkbox is checked ');
-    $("#onpurpose").submit();
-  } else {
-    alert('Please select a valid option and check the checkbox!');
-  }
-});
-$('#login').submit(function (e) {
-  e.preventDefault()
-  var email = $('#login_email').val();
-  var password = $('#login_password').val();
-  console.log(ajax_object.ajax_url);
-  $.ajax({
-    type: 'POST',
-    url: ajax_object.ajax_url,
-    data: {
-      'action': 'ajax_login',
-      'email': email,
-      'password': password,
-      'security': ajax_object.ajax_nonce,
-    },
-    success: function (response) {
-      $('#registration-message').html(response).fadeIn(1000);
-      window.location.reload();
+    if (selectedOption && selectedOption !== 'Choose Time Period' && checkboxChecked) {
+      alert('Option is selected: ' + selectedOption + ' ' + 'checkbox is checked ');
+      $("#onpurpose").submit();
+    } else {
+      alert('Please select a valid option and check the checkbox!');
     }
   });
-});
-$('#register').submit(function (e) {
-  e.preventDefault()
-  var username = $('#username').val();
-  var email = $('#email').val();
-  var password = $('#password').val();
-  var confirm_password = $('#confirm-password').val();
-  //  console.log(ajax_object.ajax_url);
-  $.ajax({
-    type: 'POST',
-    url: ajax_object.ajax_url,
-    data: {
-      'action': 'register_user',
-      'username': username,
-      'email': email,
-      'password': password,
-      'confirm_password': confirm_password,
-      'security': ajax_object.ajax_nonce,
-    },
-    success: function (response) {
-      $('#registration-message').html(response).fadeIn(5000);
-      window.location.reload();
-    }
+  $('#login').submit(function (e) {
+    e.preventDefault()
+    var email = $('#login_email').val();
+    var password = $('#login_password').val();
+    console.log(ajax_object.ajax_url);
+    $.ajax({
+      type: 'POST',
+      url: ajax_object.ajax_url,
+      data: {
+        'action': 'ajax_login',
+        'email': email,
+        'password': password,
+        'security': ajax_object.ajax_nonce,
+      },
+      success: function (response) {
+        $('#registration-message').html(response).fadeIn(1000);
+        window.location.reload();
+      }
+    });
   });
-});
-$("#payment-form").submit(function (event) {
-  event.preventDefault(); // Prevent the default form submission
+  $('#register').submit(function (e) {
+    e.preventDefault()
+    var username = $('#username').val();
+    var email = $('#email').val();
+    var password = $('#password').val();
+    var confirm_password = $('#confirm-password').val();
+    //  console.log(ajax_object.ajax_url);
+    $.ajax({
+      type: 'POST',
+      url: ajax_object.ajax_url,
+      data: {
+        'action': 'register_user',
+        'username': username,
+        'email': email,
+        'password': password,
+        'confirm_password': confirm_password,
+        'security': ajax_object.ajax_nonce,
+      },
+      success: function (response) {
+        $('#registration-message').html(response).fadeIn(5000);
+        window.location.reload();
+      }
+    });
+  });
+  $("#payment-form").submit(function (event) {
+    event.preventDefault(); // Prevent the default form submission
+    var formData = $(this).serialize();
+    $.ajax({
+      type: 'post',
+      url: ajax_object.ajax_url, // Use admin-ajax.php as the URL
+      data: formData,
+      success: function (response) {
+        // console.log(response);
+        $('#response').html(response).fadeOut(5000);
+        window.location.href = "http://localhost/wordpress/thank-you/";
+      },
+      error: function (error) {
+        // console.log(error);
+        $('#response').html(error).fadeOut(5000);
+      }
+    });
+  });
 
-  var formData = $(this).serialize();
-  $.ajax({
-    type: 'post',
-    url: ajax_object.ajax_url, // Use admin-ajax.php as the URL
-    data: formData,
-    success: function (response) {
-      alert(response);
-      $('#response').html(response).fadeOut(5000);
-    },
-    error: function (error) {
-      alert(error);
-      $('#response').html(error).fadeOut(5000);
-    }
-  });
 });
-  
-	});
 
 
 

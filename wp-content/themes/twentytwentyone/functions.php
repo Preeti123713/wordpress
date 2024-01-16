@@ -969,10 +969,11 @@ function create_payment_intent_callback()
 			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 			$headers = array();
 			$headers[] = 'Accept: application/json';
-			$headers[] = 'Api-Key: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';
+			$headers[] = 'Api-Key: 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';
 			$headers[] = 'Content-Type: application/json';
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-			$result = curl_exec($ch);
+			$result = curl_exec($ch); 
+
 			// curl_close($ch);
 
 			if (curl_errno($ch)) {
@@ -985,4 +986,64 @@ function create_payment_intent_callback()
 	}
 
 	echo $success_message;
+}
+// To Add Teacher in database
+add_action('wp_ajax_CreateTeachers', 'CreateTeachers');
+add_action('wp_ajax_nopriv_CreateTeachers', 'CreateTeachers');
+
+function CreateTeachers(){
+	// Create post object
+$my_post = array(
+	'post_title'    => wp_strip_all_tags( $_POST['name'] ),
+	'post_content'  => $_POST['selfDescription'],
+	'post_status'   => 'publish',
+	'post_author'   => 1,
+	'post_type' => 'teacher',
+	);
+	
+	// Insert the post into the database
+$post_id = wp_insert_post($my_post);
+if($post_id){
+	echo "Post Inserted Successfully .  Post ID: " . $post_id;
+	// Update custom field on the new post
+	update_post_meta( $post_id, 'language', strtolower($_POST["language"]));
+	update_post_meta( $post_id, 'country', strtolower($_POST["country"]));
+	update_post_meta( $post_id, 'level', strtolower($_POST["level"]));
+
+/* wp_insert_attachment */
+$files = $_FILES['qualifications'];
+// print_r($files);
+$imagePaths = $files['tmp_name'];
+
+// Parent post ID
+$parent_post_id = $post_id; // Replace with the actual parent post ID
+$array_image = [];
+// Loop through each image path
+foreach ($imagePaths as $imagePath) {
+	
+
+    // Get file type
+    $filetype = wp_check_filetype(basename($imagePath), null);
+
+    // Get upload directory info
+    $wp_upload_dir = wp_upload_dir();
+    // Attachment data
+    $attachment = array(
+        'guid'           => $wp_upload_dir['url'] . '/' . basename($imagePath),
+        'post_mime_type' => $filetype['type'],
+        'post_title'     => preg_replace('/\.[^.]+$/', '', basename($imagePath)),
+        'post_content'   => '',
+        'post_status'    => 'inherit'
+    );
+    // Insert attachment
+    $attach_id = wp_insert_attachment($attachment, $imagePath, $parent_post_id);
+	// $attach_data = wp_generate_attachment_metadata( $attach_id, $imagePath );
+    // $res1= wp_update_attachment_metadata( $attach_id, $attach_data );
+	$array_image[]= $attach_id;
+}
+update_post_meta( $post_id, 'post_attachment', $array_image);
+}else{
+ echo "Error, post not inserted" ;
+}
+
 }
