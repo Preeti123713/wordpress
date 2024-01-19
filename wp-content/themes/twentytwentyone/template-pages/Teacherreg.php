@@ -21,8 +21,8 @@ get_header();
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
-                                    <label for="inputPhone">Phone No.</label>
-                                    <input type="text" class="form-control" id="inputPhone" placeholder="8933453434" maxlength="10" name="phone">
+                                    <label for="pwd">Password</label>
+                                    <input type="password" id="pwd" name="pwd" class="form-control">
                                 </div>
 
                                 <div class="form-group col-md-6">

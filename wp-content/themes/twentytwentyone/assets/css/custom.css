@@ -382,3 +382,6 @@ a.nav-item.nav-link.active {
   cursor: pointer;
   display: none;
 }
+ul.dropdown-lr {
+  width: 300px;
+}

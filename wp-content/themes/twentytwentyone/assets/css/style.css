@@ -1,0 +1,230 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;700&display=swap');
+
+:root {
+    --purple500: #281154;
+    --purple300: #270082;
+    --purple600: #1b0058;
+    --red600: #dc0000;
+    --body: #f9f6ff;
+    --max-width: 1200px;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    font-family: "Roboto",sans-serif;
+    font-weight: 300;
+    line-height: 1.4;
+  }
+
+  .navbar {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+
+  }
+
+  ul {
+    list-style: none;
+}
+
+button {
+    padding: 15px 15px;
+    border:none;
+    transition: 0.2s ease-in-out;
+    width: 150px;
+}
+
+button:hover {
+    opacity: 0.8;
+    transition: 0.2s ease-in-out;
+}
+
+header {
+    background-color: var(--purple300);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.navbar-nav li a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.navbar ul {
+    display: flex;
+    gap: 20px;
+}
+
+a.navbar-brand {
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 25px;
+    color: #fff;
+}
+
+.navbar-nav li:hover {
+    border-bottom: 1px solid #fff;
+    transition: 0.4s ease-in;
+}
+
+.hero-section {
+    background-image: url('images/hero_image.png');
+    display: grid;
+    place-items: center;
+    height: 100vh;
+    color: #fff;
+}
+
+.hero-section .conatiner {
+    width: 660px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    text-align: center;
+}
+
+.hero-section h1 {
+    font-size: 90px;
+}
+
+.hero-section h3 {
+    font-size: 32px;
+}
+
+.music-section {
+    padding-top: 50px;
+    background-color: var(--purple500);
+}
+
+.music-section .container {
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.music-section .container p {
+    width: 650px;
+}
+
+.ipad-iphone-img {
+    position: relative;
+    top: 400px;
+    margin-top: -400px;
+}
+
+.primary-btn {
+    background-color: var(--red600);
+    color: #fff;
+}
+
+.secondary-btn {
+    background-color: var(--purple300);
+    color: #fff;
+}
+
+.movie-collection {
+    margin-top: 500px;
+    margin-bottom: 50px;
+}
+
+.movie-collection .container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.movie-collection .container p {
+    width: 650px;
+}
+
+.entertainment {
+    background-image: url("images/video.png");
+    height: 100vh;
+}
+
+.entertainment .container {
+    padding-top: 180px;
+    color: #fff;
+    text-align: center;
+    top: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    justify-content: center;
+}
+
+.entertainment .container p {
+    width: 650px;
+    margin: 0 auto;
+}
+
+section.gift-card {
+    padding: 120px;
+}
+
+.gift-card .container {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 40px;
+}
+
+.gift-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    font-weight: 400;
+}
+
+.line {
+    border-bottom: 1px solid;
+}
+
+footer {
+    background-color: var(--purple300);
+    color: white;
+}
+
+.footer-container {
+    padding: 40px 150px;
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+}
+
+.footer-menus {
+    margin-right: 30px;
+}
+
+.footer-menus h2 {
+    border-bottom: 2px solid rgba(255,255,255,0.7);
+    margin-bottom: 15px;
+}
+
+.footer-menus ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 15px;
+}
+
+.copy-right {
+    text-align: center;
+    padding: 20px;
+    font-weight: 500;
+    background-color: var(--purple600);
+}

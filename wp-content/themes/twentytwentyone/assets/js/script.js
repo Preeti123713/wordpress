@@ -1,4 +1,32 @@
 $(document).ready(function () {
+  $('[data-toggle=offcanvas]').click(function() {
+    $('.row-offcanvas').toggleClass('active');
+  });
+
+  $('#ajax-login-form').submit(function(event){
+event.preventDefault();
+var Form = $(this);
+$.ajax({
+type:'post',
+url:  ajax_object.ajax_url,
+data: Form.serialize(),
+dataType:'json',
+success:function(data){
+  if(data.status){
+    alert(data.message);
+  }else{
+    alert(data.message);
+  }
+
+  setTimeout(()=>{
+    window.location.href = data.url;
+  }, 1000);
+},
+error:function(error){
+  alert(error);
+}
+});
+  });
   // Check total number elements
   $(".add").click(function () {
     var totalElements = $(".right-inner-addon").length;

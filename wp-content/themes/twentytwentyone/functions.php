@@ -722,9 +722,12 @@ add_action('init', 'teacher_init');
 function enqueue_custom_styles()
 {
 	wp_enqueue_style('custom', get_template_directory_uri() . './assets/css/custom.css', array(), '1.0', 'all');
+	// wp_enqueue_style('new-css', get_template_directory_uri() . './assets/css/style.css', array(), '1.0', 'all');
+	// wp_enqueue_style('zone', get_template_directory_uri() . './assets/css/zone.css', array(), '1.0', 'all');
 	wp_enqueue_style('bootstrap-css', 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css', array(), '1.0', 'all');
 	wp_enqueue_style('jquery-ui-css', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css', array(), '1.0', 'all');
 	wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css', array(), '1.0', 'all');
+	wp_enqueue_style('animate', 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css', array(), '1.0', 'all');
 }
 add_action('wp_enqueue_scripts', 'enqueue_custom_styles');
 
@@ -732,11 +735,12 @@ function enqueue_custom_js()
 {
 	wp_enqueue_script('jqueryxv', 'https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js', array(), '1.0', true);
 	wp_enqueue_script('stripe', 'https://js.stripe.com/v3/', array(), null, false);
-	wp_enqueue_script('script', get_template_directory_uri() . '/assets/js/script.js', array('jquery'), '1.0', true);
+	wp_enqueue_script('script', get_template_directory_uri() .'/assets/js/script.js', array('jquery'), '1.0', true);
 	wp_enqueue_script('jquery-ui-js', 'https://code.jquery.com/ui/1.12.1/jquery-ui.js', array('jquery'), '1.0', true);
 	wp_enqueue_script('popper', "https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js", array('jquery'), '1.0', true);
 	wp_enqueue_script('bootstrap-js', 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js', array('jquery'), '1.0', true);
 	wp_enqueue_script('creditCardValidator', 'https://cdnjs.cloudflare.com/ajax/libs/jquery-creditcardvalidator/1.0.0/jquery.creditCardValidator.js', array('jquery'), '1.0', true);
+	// wp_enqueue_script('kit-fontawesome', 'https://kit.fontawesome.com/7a4b62b0a4.js', array('jquery'), '1.0',false);
 
 
 	$ajax_data = array(
@@ -978,6 +982,7 @@ function create_payment_intent_callback()
 
 			if (curl_errno($ch)) {
 				echo 'Error:' . curl_error($ch);
+				exit();
 			}
 			curl_close($ch);
 			// print_r($result);
@@ -992,6 +997,7 @@ add_action('wp_ajax_CreateTeachers', 'CreateTeachers');
 add_action('wp_ajax_nopriv_CreateTeachers', 'CreateTeachers');
 
 function CreateTeachers(){
+	// global $current_user;
 	// Create post object
 $my_post = array(
 	'post_title'    => wp_strip_all_tags( $_POST['name'] ),
@@ -1003,6 +1009,9 @@ $my_post = array(
 	
 	// Insert the post into the database
 $post_id = wp_insert_post($my_post);
+$username = $_POST['name'];
+$email = $_POST['email'];
+$password = $_POST['pwd'];
 if($post_id){
 	echo "Post Inserted Successfully .  Post ID: " . $post_id;
 	// Update custom field on the new post
@@ -1037,13 +1046,68 @@ foreach ($imagePaths as $imagePath) {
     );
     // Insert attachment
     $attach_id = wp_insert_attachment($attachment, $imagePath, $parent_post_id);
-	// $attach_data = wp_generate_attachment_metadata( $attach_id, $imagePath );
-    // $res1= wp_update_attachment_metadata( $attach_id, $attach_data );
 	$array_image[]= $attach_id;
 }
 update_post_meta( $post_id, 'post_attachment', $array_image);
-}else{
- echo "Error, post not inserted" ;
+// create user as teacher
+$user_id =  wp_create_user($username,$password,$email);
+
+if ( ! is_wp_error( $user_id ) ) {
+    // Set the user role
+    $user = new WP_User( $user_id );
+    $user->set_role( 'teacher' ); // Change 'subscriber' to the desired role
 }
 
+if(!is_wp_error($user)){
+	$res = update_user_meta($user_id,'teacher_post_id',$post_id);
+	echo $res;
+}else{
+	$error = $user->get_error_message();
+	echo $error;
+}
+
+}else{
+ echo "Error, post not inserted";
+ exit();
+}
+
+}
+// common Login
+add_action('wp_ajax_commonLogin', 'commonLogin');
+add_action('wp_ajax_nopriv_commonLogin', 'commonLogin');
+
+function commonLogin(){
+	// print_r($_POST);
+	$response = [];
+	$login_data = array(
+		'user_login'    => $_POST['email'],
+		'user_password' => $_POST['password'],
+		'remember'      => true,
+	);
+
+	$user_verify = wp_signon( $login_data, false );
+
+	if ( is_wp_error( $user_verify ) ) {
+		// echo '<div class="error">Invalid username or password. Please try again.</div>';
+		$response['status'] = 0;
+		$response['message'] = "ERROR: Something went wrong";
+	} else {
+		// echo '<div class="success">Login successful. Redirecting...</div>';
+		// Redirect basis on role student or teacher
+		$id = $user_verify->ID;
+		$user_info = get_userdata($id);
+		if ( in_array( 'teacher', (array) $user_info->roles ) ) {
+		$response['url'] = get_the_permalink(394);
+		}elseif(in_array( 'student', (array) $user_info->roles )){
+			$response['url'] = get_the_permalink(52);
+		}
+		$response['status'] = 1;
+		$response['message'] = "Login Successful";
+	 
+
+		// wp_redirect( home_url() ); // You can redirect the user to any page after successful login
+		
+	}
+	echo json_encode($response);
+	exit();
 }
