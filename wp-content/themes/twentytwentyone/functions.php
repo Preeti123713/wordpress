@@ -997,8 +997,8 @@ add_action('wp_ajax_CreateTeachers', 'CreateTeachers');
 add_action('wp_ajax_nopriv_CreateTeachers', 'CreateTeachers');
 
 function CreateTeachers(){
-	// global $current_user;
-	// Create post object
+	
+$array = [];
 $my_post = array(
 	'post_title'    => wp_strip_all_tags( $_POST['name'] ),
 	'post_content'  => $_POST['selfDescription'],
@@ -1007,9 +1007,10 @@ $my_post = array(
 	'post_type' => 'teacher',
 	);
 	
-	// Insert the post into the database
+// 	// Insert the post into the database
 $post_id = wp_insert_post($my_post);
 $username = $_POST['name'];
+$teachingExperience = $_POST['teachingExperience'];
 $email = $_POST['email'];
 $password = $_POST['pwd'];
 if($post_id){
@@ -1018,59 +1019,95 @@ if($post_id){
 	update_post_meta( $post_id, 'language', strtolower($_POST["language"]));
 	update_post_meta( $post_id, 'country', strtolower($_POST["country"]));
 	update_post_meta( $post_id, 'level', strtolower($_POST["level"]));
+	update_post_meta( $post_id, 'teaching_experience',strtolower($teachingExperience));
 
-/* wp_insert_attachment */
-$files = $_FILES['qualifications'];
-// print_r($files);
-$imagePaths = $files['tmp_name'];
 
-// Parent post ID
-$parent_post_id = $post_id; // Replace with the actual parent post ID
-$array_image = [];
-// Loop through each image path
-foreach ($imagePaths as $imagePath) {
-	
+	// WordPress environmet
+	require( dirname(__FILE__) . '/../../../wp-load.php' );
 
-    // Get file type
-    $filetype = wp_check_filetype(basename($imagePath), null);
+	// it allows us to use wp_handle_upload() function
+	require_once( ABSPATH . 'wp-admin/includes/file.php' );
 
-    // Get upload directory info
-    $wp_upload_dir = wp_upload_dir();
-    // Attachment data
-    $attachment = array(
-        'guid'           => $wp_upload_dir['url'] . '/' . basename($imagePath),
-        'post_mime_type' => $filetype['type'],
-        'post_title'     => preg_replace('/\.[^.]+$/', '', basename($imagePath)),
-        'post_content'   => '',
-        'post_status'    => 'inherit'
-    );
-    // Insert attachment
-    $attach_id = wp_insert_attachment($attachment, $imagePath, $parent_post_id);
-	$array_image[]= $attach_id;
+	// you can add some kind of validation here
+	if( empty( $_FILES[ 'qualifications' ] ) ) {
+		wp_die( 'No files selected.' );
+	}
+
+	// for multiple file upload.
+	$upload_overrides = array( 'test_form' => false );
+
+	$files = $_FILES[ 'qualifications' ];
+	foreach ($files['name'] as $key => $name) {
+
+		$file = array(
+			'name' => $files['name'][ $key ],
+			'type' => $files['type'][ $key ],
+			'tmp_name' => $files['tmp_name'][ $key ],
+			'error' => $files['error'][ $key ],
+			'size' => $files['size'][ $key ]
+		);
+
+		$upload = wp_handle_upload( $file, $upload_overrides );
+
+		if( ! empty( $upload[ 'error' ] ) ) {
+			wp_die( $upload[ 'error' ] );
+		}
+
+		// it is time to add our uploaded image into WordPress media library
+		$attachment_id = wp_insert_attachment(
+			array(
+				'guid'           => $upload[ 'url' ],
+				'post_mime_type' => $upload[ 'type' ],
+				'post_title'     => basename( $upload[ 'file' ] ),
+				'post_content'   => '',
+				'post_status'    => 'inherit',
+			),
+			$upload[ 'file' ]
+		);
+
+		if( is_wp_error( $attachment_id ) || ! $attachment_id ) {
+			wp_die( 'Upload error.' );
+		}
+
+		// update medatata, regenerate image sizes
+		require_once( ABSPATH . 'wp-admin/includes/image.php' );
+
+		wp_update_attachment_metadata(
+			$attachment_id,
+			wp_generate_attachment_metadata( $attachment_id, $upload[ 'file' ] )
+		);
+		$array[] = $attachment_id;
+	}
+
+	$result	= update_post_meta($post_id, 'post_attachment', $array);
+	if ($result) {
+		echo 'Post meta updated successfully.';
+	} else {
+		echo 'Failed to update post meta.';
+	}
 }
-update_post_meta( $post_id, 'post_attachment', $array_image);
-// create user as teacher
-$user_id =  wp_create_user($username,$password,$email);
+// Create user as teacher
+$user_id = wp_create_user($username, $password, $email);
 
-if ( ! is_wp_error( $user_id ) ) {
+// Check if user creation was successful
+if (!is_wp_error($user_id)) {
     // Set the user role
-    $user = new WP_User( $user_id );
-    $user->set_role( 'teacher' ); // Change 'subscriber' to the desired role
+    $user = new WP_User($user_id);
+    $user->set_role('teacher'); // Change 'subscriber' to the desired role
+    // Update user meta with teacher post ID
+    $res = update_user_meta($user_id,'teacher_post_id',$post_id);
+    if (is_wp_error($res)) {
+        $error = $res->get_error_message();
+        echo $error;
+    } else {
+        echo "Teacher user created successfully.";
+    }
+} else {
+    $error = $user_id->get_error_message();
+    echo $error;
+	
 }
-
-if(!is_wp_error($user)){
-	$res = update_user_meta($user_id,'teacher_post_id',$post_id);
-	echo $res;
-}else{
-	$error = $user->get_error_message();
-	echo $error;
-}
-
-}else{
- echo "Error, post not inserted";
- exit();
-}
-
+exit();
 }
 // common Login
 add_action('wp_ajax_commonLogin', 'commonLogin');
@@ -1096,18 +1133,19 @@ function commonLogin(){
 		// Redirect basis on role student or teacher
 		$id = $user_verify->ID;
 		$user_info = get_userdata($id);
-		if ( in_array( 'teacher', (array) $user_info->roles ) ) {
+		if ( in_array( 'teacher', (array) $user_info->roles)) {
 		$response['url'] = get_the_permalink(394);
-		}elseif(in_array( 'student', (array) $user_info->roles )){
+		}elseif(in_array( 'student', (array) $user_info->roles)){
 			$response['url'] = get_the_permalink(52);
 		}
 		$response['status'] = 1;
-		$response['message'] = "Login Successful";
-	 
-
-		// wp_redirect( home_url() ); // You can redirect the user to any page after successful login
-		
+		$response['message'] = "Login Successful";		
 	}
 	echo json_encode($response);
 	exit();
+}
+
+function UpdateTeachers(){
+	echo "heelo";
+	print_r($_POST);
 }

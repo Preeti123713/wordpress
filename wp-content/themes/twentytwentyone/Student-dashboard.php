@@ -1,5 +1,5 @@
 <?php
-/* Template Name: Admin-dashboard*/
+/* Template Name: Student-dashboard */
 get_header('admin');
 $user_id = get_current_user_id();
 ?>

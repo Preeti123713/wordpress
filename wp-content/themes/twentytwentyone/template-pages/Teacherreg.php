@@ -83,7 +83,7 @@ get_header();
                                 <label for="qualification">Qualification</label>
                                 <span class="add input-group-addon"><i class="fa-solid fa-plus"></i></span>
                                 <span class="remove input-group-addon-minus"><i class="fa-solid fa-xmark"></i></span>
-                                <input type="file" name="qualifications[]" class="form-control" id="qualification_1"  accept=".jpg, .jpeg, .png, .gif" required  />
+                                <input type="file" name="qualifications[]" class="form-control images" accept=".jpg, .jpeg, .png, .gif" required />
                             </div>
                             <input type="hidden" name="action" value="CreateTeachers">
                             <button type="submit" class="btn btn-primary">Submit</button>

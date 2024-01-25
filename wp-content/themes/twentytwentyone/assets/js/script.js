@@ -1,31 +1,57 @@
 $(document).ready(function () {
-  $('[data-toggle=offcanvas]').click(function() {
-    $('.row-offcanvas').toggleClass('active');
+
+  var imageIdValues = [];
+  var removeId,index;
+  $('input[name="image[]"]').each(function () {
+    imageIdValues.push($(this).val());
   });
 
-  $('#ajax-login-form').submit(function(event){
-event.preventDefault();
-var Form = $(this);
-$.ajax({
-type:'post',
-url:  ajax_object.ajax_url,
-data: Form.serialize(),
-dataType:'json',
-success:function(data){
-  if(data.status){
-    alert(data.message);
-  }else{
-    alert(data.message);
-  }
-
-  setTimeout(()=>{
-    window.location.href = data.url;
-  }, 1000);
-},
-error:function(error){
-  alert(error);
-}
+  $(".remove").click(function () {
+    var $card = $(this).closest('.card'); // Get the closest parent card element
+    $card.find(".card-img-top").each(function () {
+      removeId = $(this).data("id"); // Access data-id attribute correctly
+       console.log(removeId);
+    });
+ console.log(imageIdValues);
+  // Find the index of the element to remove
+var index = imageIdValues.indexOf(removeId);
+console.log(index);
 });
+// Check if the element exists in the array
+if (index !== -1) {
+    // Use the splice method to remove the element at the found index
+    imageIdValues.splice(index,removeId);
+}
+
+// Now myArray will be [1, 2, 4, 5], with the element 3 removed
+console.log(imageIdValues);
+
+
+  // Now you can do something with the newImages array
+  $('#ajax-login-form').submit(function (event) {
+    event.preventDefault();
+    var Form = $(this);
+    $.ajax({
+      type: 'post',
+      url: ajax_object.ajax_url,
+      data: Form.serialize(),
+      dataType: 'json',
+      success: function (data) {
+        if (data.status) {
+          alert(data.message);
+          $(Form).trigger("reset");
+        } else {
+          alert(data.message);
+        }
+
+        setTimeout(() => {
+          window.location.href = data.url;
+        }, 1000);
+      },
+      error: function (error) {
+        alert(error);
+      }
+    });
   });
   // Check total number elements
   $(".add").click(function () {
@@ -63,11 +89,12 @@ error:function(error){
       type: 'post',
       url: ajax_object.ajax_url,
       data: formData,
-      cache:false,
-      contentType:false,
-      processData:false,
+      cache: false,
+      contentType: false,
+      processData: false,
       success: function (response) {
         alert(response);
+        $("#Teacher-register").trigger("reset");
       },
       error: function (error) {
         alert(error);
@@ -168,7 +195,6 @@ error:function(error){
   });
 
 });
-
 
 
 /**
