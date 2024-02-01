@@ -1,63 +1,60 @@
 <?php
 /* Template Name: Student-dashboard */
-get_header('admin');
-$user_id = get_current_user_id();
+get_header('student');
 ?>
-<div class="col main pt-5 mt-3">
-<?php get_sidebar(); ?>
-<div class="col-md-9">
-    <h1 class="display-4 d-none d-sm-block">
-        Teacher Dashboard
-    </h1>
-        <div class="row mb-3">
-            <div class="col-xl-3 col-sm-6 py-2">
-                <div class="card bg-success text-white h-100">
-                    <div class="card-body bg-success">
-                        <div class="rotate">
-                            <i class="fa fa-user fa-4x"></i>
+<div class="container-student">
+            <h1 class="main--title"> Today`s Data</h1>
+            <div class="module--wrapper">
+                <div class="payment--card light-red">
+                    <div class="payment--header">
+                        <div class="amount">
+                            <span class="title">
+                                Payment Amount
+                            </span>
+                            <span class="amount--value">$500.00</span>
                         </div>
-                        <h6 class="text-uppercase">Users</h6>
-                        <h1 class="display-4">134</h1>
+                        <i class="fa-solid fa-dollar-sign icon"></i>
                     </div>
+                    <span class="payment-card-details">************2345</span>
                 </div>
-            </div>
-            <div class="col-xl-3 col-sm-6 py-2">
-                <div class="card text-white bg-danger h-100">
-                    <div class="card-body bg-danger">
-                        <div class="rotate">
-                            <i class="fa fa-list fa-4x"></i>
+                <div class="payment--card light-purple">
+                    <div class="payment--header">  
+                        <div class="amount">
+                            <span class="title">
+                                Payment 
+                            </span>
+                            <span class="amount--value">$20.00</span>
                         </div>
-                        <h6 class="text-uppercase">Posts</h6>
-                        <h1 class="display-4">87</h1>
+                        <i class="fa-solid fa-list dark-purple icon"></i>
                     </div>
+                    <span class="payment-card-details">************4242</span>
                 </div>
-            </div>
-            <div class="col-xl-3 col-sm-6 py-2">
-                <div class="card text-white bg-info h-100">
-                    <div class="card-body bg-info">
-                        <div class="rotate">
-                            <i class="fa fa-twitter fa-4x"></i>
+                <div class="payment--card light-green">
+                    <div class="payment--header">  
+                        <div class="amount">
+                            <span class="title">
+                                Payment Customer
+                            </span>
+                            <span class="amount--value">$350.00</span>
                         </div>
-                        <h6 class="text-uppercase">Tweets</h6>
-                        <h1 class="display-4">125</h1>
+                        <i class="fa-solid fa-users dark-green icon"></i>
                     </div>
+                    <span class="payment-card-details">************4347</span>
                 </div>
-            </div>
-            <div class="col-xl-3 col-sm-6 py-2">
-                <div class="card text-white bg-warning h-100">
-                    <div class="card-body">
-                        <div class="rotate">
-                            <i class="fa fa-share fa-4x"></i>
+                <div class="payment--card light-blue">
+                    <div class="payment--header">  
+                        <div class="amount">
+                            <span class="title">
+                                Payment Processed
+                            </span>
+                            <span class="amount--value">$150.00</span>
                         </div>
-                        <h6 class="text-uppercase">Shares</h6>
-                        <h1 class="display-4">36</h1>
+                        <i class="fa-solid fa-check dark-blue icon"></i>
                     </div>
+                    <span class="payment-card-details">************7745</span>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-</div>
-</div>
-<?php get_footer(); ?>
+    </div>
+    <?php get_footer('student'); ?>

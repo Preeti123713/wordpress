@@ -722,6 +722,7 @@ add_action('init', 'teacher_init');
 function enqueue_custom_styles()
 {
 	wp_enqueue_style('custom', get_template_directory_uri() . './assets/css/custom.css', array(), '1.0', 'all');
+	wp_enqueue_style('new-css', get_template_directory_uri() . './assets/css/studentdash.css', array(), '1.0', 'all');
 	// wp_enqueue_style('new-css', get_template_directory_uri() . './assets/css/style.css', array(), '1.0', 'all');
 	// wp_enqueue_style('zone', get_template_directory_uri() . './assets/css/zone.css', array(), '1.0', 'all');
 	wp_enqueue_style('bootstrap-css', 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css', array(), '1.0', 'all');
@@ -735,7 +736,7 @@ function enqueue_custom_js()
 {
 	wp_enqueue_script('jqueryxv', 'https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js', array(), '1.0', true);
 	wp_enqueue_script('stripe', 'https://js.stripe.com/v3/', array(), null, false);
-	wp_enqueue_script('script', get_template_directory_uri() .'/assets/js/script.js', array('jquery'), '1.0', true);
+	wp_enqueue_script('script', get_template_directory_uri() . '/assets/js/script.js', array('jquery'), '1.0', true);
 	wp_enqueue_script('jquery-ui-js', 'https://code.jquery.com/ui/1.12.1/jquery-ui.js', array('jquery'), '1.0', true);
 	wp_enqueue_script('popper', "https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js", array('jquery'), '1.0', true);
 	wp_enqueue_script('bootstrap-js', 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js', array('jquery'), '1.0', true);
@@ -786,6 +787,7 @@ function ajax_login()
 	} else {
 		echo "login successful";
 	}
+	exit;
 }
 function register_user()
 {
@@ -976,7 +978,7 @@ function create_payment_intent_callback()
 			$headers[] = 'Api-Key: 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';
 			$headers[] = 'Content-Type: application/json';
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-			$result = curl_exec($ch); 
+			$result = curl_exec($ch);
 
 			// curl_close($ch);
 
@@ -996,125 +998,124 @@ function create_payment_intent_callback()
 add_action('wp_ajax_CreateTeachers', 'CreateTeachers');
 add_action('wp_ajax_nopriv_CreateTeachers', 'CreateTeachers');
 
-function CreateTeachers(){
-	
-$array = [];
-$my_post = array(
-	'post_title'    => wp_strip_all_tags( $_POST['name'] ),
-	'post_content'  => $_POST['selfDescription'],
-	'post_status'   => 'publish',
-	'post_author'   => 1,
-	'post_type' => 'teacher',
+function CreateTeachers()
+{
+	$array = [];
+	$my_post = array(
+		'post_title'    => wp_strip_all_tags($_POST['name']),
+		'post_content'  => $_POST['selfDescription'],
+		'post_status'   => 'publish',
+		'post_author'   => 1,
+		'post_type' => 'teacher',
 	);
-	
-// 	// Insert the post into the database
-$post_id = wp_insert_post($my_post);
-$username = $_POST['name'];
-$teachingExperience = $_POST['teachingExperience'];
-$email = $_POST['email'];
-$password = $_POST['pwd'];
-if($post_id){
-	echo "Post Inserted Successfully .  Post ID: " . $post_id;
-	// Update custom field on the new post
-	update_post_meta( $post_id, 'language', strtolower($_POST["language"]));
-	update_post_meta( $post_id, 'country', strtolower($_POST["country"]));
-	update_post_meta( $post_id, 'level', strtolower($_POST["level"]));
-	update_post_meta( $post_id, 'teaching_experience',strtolower($teachingExperience));
+
+	// 	// Insert the post into the database
+	$post_id = wp_insert_post($my_post);
+	$username = $_POST['name'];
+	$teachingExperience = $_POST['teachingExperience'];
+	$email = $_POST['email'];
+	$password = $_POST['pwd'];
+	if ($post_id) {
+		echo "Post Inserted Successfully .  Post ID: " . $post_id;
+		// Update custom field on the new post
+		update_post_meta($post_id, 'language', strtolower($_POST["language"]));
+		update_post_meta($post_id, 'country', strtolower($_POST["country"]));
+		update_post_meta($post_id, 'level', strtolower($_POST["level"]));
+		update_post_meta($post_id, 'teaching_experience', strtolower($teachingExperience));
 
 
-	// WordPress environmet
-	require( dirname(__FILE__) . '/../../../wp-load.php' );
+		// WordPress environmet
+		require(dirname(__FILE__) . '/../../../wp-load.php');
 
-	// it allows us to use wp_handle_upload() function
-	require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		// it allows us to use wp_handle_upload() function
+		require_once(ABSPATH . 'wp-admin/includes/file.php');
 
-	// you can add some kind of validation here
-	if( empty( $_FILES[ 'qualifications' ] ) ) {
-		wp_die( 'No files selected.' );
-	}
-
-	// for multiple file upload.
-	$upload_overrides = array( 'test_form' => false );
-
-	$files = $_FILES[ 'qualifications' ];
-	foreach ($files['name'] as $key => $name) {
-
-		$file = array(
-			'name' => $files['name'][ $key ],
-			'type' => $files['type'][ $key ],
-			'tmp_name' => $files['tmp_name'][ $key ],
-			'error' => $files['error'][ $key ],
-			'size' => $files['size'][ $key ]
-		);
-
-		$upload = wp_handle_upload( $file, $upload_overrides );
-
-		if( ! empty( $upload[ 'error' ] ) ) {
-			wp_die( $upload[ 'error' ] );
+		// you can add some kind of validation here
+		if (empty($_FILES['qualifications'])) {
+			wp_die('No files selected.');
 		}
 
-		// it is time to add our uploaded image into WordPress media library
-		$attachment_id = wp_insert_attachment(
-			array(
-				'guid'           => $upload[ 'url' ],
-				'post_mime_type' => $upload[ 'type' ],
-				'post_title'     => basename( $upload[ 'file' ] ),
-				'post_content'   => '',
-				'post_status'    => 'inherit',
-			),
-			$upload[ 'file' ]
-		);
+		// for multiple file upload.
+		$upload_overrides = array('test_form' => false);
 
-		if( is_wp_error( $attachment_id ) || ! $attachment_id ) {
-			wp_die( 'Upload error.' );
+		$files = $_FILES['qualifications'];
+		foreach ($files['name'] as $key => $name) {
+
+			$file = array(
+				'name' => $files['name'][$key],
+				'type' => $files['type'][$key],
+				'tmp_name' => $files['tmp_name'][$key],
+				'error' => $files['error'][$key],
+				'size' => $files['size'][$key]
+			);
+
+			$upload = wp_handle_upload($file, $upload_overrides);
+
+			if (!empty($upload['error'])) {
+				wp_die($upload['error']);
+			}
+
+			// it is time to add our uploaded image into WordPress media library
+			$attachment_id = wp_insert_attachment(
+				array(
+					'guid'           => $upload['url'],
+					'post_mime_type' => $upload['type'],
+					'post_title'     => basename($upload['file']),
+					'post_content'   => '',
+					'post_status'    => 'inherit',
+				),
+				$upload['file']
+			);
+
+			if (is_wp_error($attachment_id) || !$attachment_id) {
+				wp_die('Upload error.');
+			}
+
+			// update medatata, regenerate image sizes
+			require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+			wp_update_attachment_metadata(
+				$attachment_id,
+				wp_generate_attachment_metadata($attachment_id, $upload['file'])
+			);
+			$array[] = $attachment_id;
 		}
 
-		// update medatata, regenerate image sizes
-		require_once( ABSPATH . 'wp-admin/includes/image.php' );
-
-		wp_update_attachment_metadata(
-			$attachment_id,
-			wp_generate_attachment_metadata( $attachment_id, $upload[ 'file' ] )
-		);
-		$array[] = $attachment_id;
+		$result	= update_post_meta($post_id, 'post_attachment', $array);
+		if ($result) {
+			echo 'Post meta updated successfully.';
+		} else {
+			echo 'Failed to update post meta.';
+		}
 	}
+	// Create user as teacher
+	$user_id = wp_create_user($username, $password, $email);
 
-	$result	= update_post_meta($post_id, 'post_attachment', $array);
-	if ($result) {
-		echo 'Post meta updated successfully.';
+	// Check if user creation was successful
+	if (!is_wp_error($user_id)) {
+		// Set the user role
+		$user = new WP_User($user_id);
+		$user->set_role('teacher'); // Change 'subscriber' to the desired role
+		// Update user meta with teacher post ID
+		$res = update_user_meta($user_id, 'teacher_post_id', $post_id);
+		if (is_wp_error($res)) {
+			$error = $res->get_error_message();
+			echo $error;
+		} else {
+			echo "Teacher user created successfully.";
+		}
 	} else {
-		echo 'Failed to update post meta.';
+		$error = $user_id->get_error_message();
+		echo $error;
 	}
-}
-// Create user as teacher
-$user_id = wp_create_user($username, $password, $email);
-
-// Check if user creation was successful
-if (!is_wp_error($user_id)) {
-    // Set the user role
-    $user = new WP_User($user_id);
-    $user->set_role('teacher'); // Change 'subscriber' to the desired role
-    // Update user meta with teacher post ID
-    $res = update_user_meta($user_id,'teacher_post_id',$post_id);
-    if (is_wp_error($res)) {
-        $error = $res->get_error_message();
-        echo $error;
-    } else {
-        echo "Teacher user created successfully.";
-    }
-} else {
-    $error = $user_id->get_error_message();
-    echo $error;
-	
-}
-exit();
+	exit();
 }
 // common Login
 add_action('wp_ajax_commonLogin', 'commonLogin');
 add_action('wp_ajax_nopriv_commonLogin', 'commonLogin');
 
-function commonLogin(){
-	// print_r($_POST);
+function commonLogin()
+{
 	$response = [];
 	$login_data = array(
 		'user_login'    => $_POST['email'],
@@ -1122,9 +1123,9 @@ function commonLogin(){
 		'remember'      => true,
 	);
 
-	$user_verify = wp_signon( $login_data, false );
+	$user_verify = wp_signon($login_data, false);
 
-	if ( is_wp_error( $user_verify ) ) {
+	if (is_wp_error($user_verify)) {
 		// echo '<div class="error">Invalid username or password. Please try again.</div>';
 		$response['status'] = 0;
 		$response['message'] = "ERROR: Something went wrong";
@@ -1133,19 +1134,180 @@ function commonLogin(){
 		// Redirect basis on role student or teacher
 		$id = $user_verify->ID;
 		$user_info = get_userdata($id);
-		if ( in_array( 'teacher', (array) $user_info->roles)) {
-		$response['url'] = get_the_permalink(394);
-		}elseif(in_array( 'student', (array) $user_info->roles)){
-			$response['url'] = get_the_permalink(52);
+		if (in_array('teacher', (array) $user_info->roles)) {
+			$response['url'] = get_the_permalink(394);
+		} elseif (in_array('student', (array) $user_info->roles)) {
+			$response['url'] = get_the_permalink(644);
 		}
 		$response['status'] = 1;
-		$response['message'] = "Login Successful";		
+		$response['message'] = "Login Successful";
 	}
 	echo json_encode($response);
 	exit();
 }
+// To update Teacher in database
+add_action('wp_ajax_updateTeachers', 'updateTeachers');
+add_action('wp_ajax_nopriv_updateTeachers', 'updateTeachers');
 
-function UpdateTeachers(){
-	echo "heelo";
-	print_r($_POST);
+function updateTeachers()
+{
+	$array = [];
+	$merge_attachmentid = [];
+	$user_id = get_current_user_id();
+	$userdata = get_user_meta($user_id, 'teacher_post_id');
+	$post_id = $userdata[0];
+	$images = $_POST['image'];
+	$username = $_POST['name'];
+	$teachingExperience = $_POST['teachingExperience'];
+	$email = $_POST['email'];
+	// Define the updated post data
+	$updated_post = array(
+		'ID'            => $post_id,
+		'post_title'    => wp_strip_all_tags($_POST['name']),
+		'post_content'  => $_POST['selfDescription'],
+	);
+
+	// Update the post
+	wp_update_post($updated_post);
+
+	if ($post_id) {
+		echo "Post updated Successfully .  Post ID: " . $post_id;
+		// Update custom field on the new post
+		update_post_meta($post_id, 'language', strtolower($_POST["language"]));
+		update_post_meta($post_id, 'country', strtolower($_POST["country"]));
+		update_post_meta($post_id, 'level', strtolower($_POST["level"]));
+		update_post_meta($post_id, 'teaching_experience', strtolower($teachingExperience));
+
+
+		// WordPress environmet
+		require(dirname(__FILE__) . '/../../../wp-load.php');
+
+		// it allows us to use wp_handle_upload() function
+		require_once(ABSPATH . 'wp-admin/includes/file.php');
+
+		// you can add some kind of validation here
+		if (empty($_FILES['qualifications'])) {
+			wp_die('No files selected.');
+		}
+
+		// for multiple file upload.
+		$upload_overrides = array('test_form' => false);
+
+		$files = $_FILES['qualifications'];
+		foreach ($files['name'] as $key => $name) {
+
+			$file = array(
+				'name' => $files['name'][$key],
+				'type' => $files['type'][$key],
+				'tmp_name' => $files['tmp_name'][$key],
+				'error' => $files['error'][$key],
+				'size' => $files['size'][$key]
+			);
+
+			$upload = wp_handle_upload($file, $upload_overrides);
+
+			if (!empty($upload['error'])) {
+				wp_die($upload['error']);
+			}
+
+			// it is time to add our uploaded image into WordPress media library
+			$attachment_id = wp_insert_attachment(
+			array(
+					'guid'           => $upload['url'],
+					'post_mime_type' => $upload['type'],
+					'post_title'     => basename($upload['file']),
+					'post_content'   => '',
+					'post_status'    => 'inherit',
+				),
+				$upload['file']
+			);
+
+			if (is_wp_error($attachment_id) || !$attachment_id) {
+				wp_die('Upload error.');
+			}
+
+			// update medatata, regenerate image sizes
+			require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+			wp_update_attachment_metadata(
+				$attachment_id,
+				wp_generate_attachment_metadata($attachment_id, $upload['file'])
+			);
+			$array[] = $attachment_id;
+		}
+		$merge_attachmentid[] = array_merge($images, $array);
+		$result	= update_post_meta($post_id, 'post_attachment', $merge_attachmentid);
+		if ($result) {
+			echo 'Post meta updated successfully.';
+		} else {
+			echo 'Failed to update post meta.';
+		}
+	}
+	// Get the current user's information
+	$current_user = wp_get_current_user();
+	// Prepare data for updating the user
+	$user_id = $current_user->ID;
+	$user_data = array(
+		'ID' => $user_id,
+		'user_login' => $username,
+		'user_email' => $email
+	);
+
+	// Update the user's information
+	$updated = wp_update_user($user_data);
+
+	// Check if the update was successful
+	if (is_wp_error($updated)) {
+		echo "An error occurred while updating the user information.";
+	} else {
+		echo "User information updated successfully.";
+	}
+	exit;
+}
+// To remove the images from database
+add_action('wp_ajax_removeImages', 'removeImages');
+add_action('wp_ajax_nopriv_removeImages', 'removeImages');
+function removeImages()
+{
+	$image_id = $_POST['image_id'];
+	$resImg = wp_delete_attachment($image_id);  // delete an image;
+	exit;
+}
+// To reset the password
+add_action('wp_ajax_ForgetPassword', 'ForgetPassword');
+add_action('wp_ajax_nopriv_ForgetPassword', 'ForgetPassword');
+function ForgetPassword()
+{
+	$currentpassword = $_POST['pwd'];
+	$confirmpassword = $_POST['confirmpassword'];
+	$newpassword = $_POST['newpassword'];
+	// Check if new password and confirm password match
+	if ($newpassword !== $confirmpassword) {
+		echo "New password and confirm password do not match.";
+		exit;
+	}
+	// Get the current user's information
+	$current_user = wp_get_current_user();
+	// Check if the entered current password matches the user's actual password
+	if (wp_check_password($currentpassword, $current_user->user_pass, $current_user->ID)) {
+		// Prepare data for updating the user
+		$user_id = $current_user->ID;
+		$user_data = array(
+			'ID' => $user_id,
+			'user_pass' => $newpassword
+		);
+
+		// Update the user's information
+		$updated = wp_update_user($user_data);
+
+		// Check if the update was successful
+		if (is_wp_error($updated)) {
+			echo "An error occurred while updating the user`s password.";
+		} else {
+			echo "User`s password updated successfully.";
+		}
+	} else {
+		echo "Current password is incorrect.";
+	}
+	exit;
 }

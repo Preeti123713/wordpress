@@ -16,7 +16,7 @@ $imageid = [];
             <div class="col-12 col-lg-9 col-xl-7">
                 <div class="card shadow-2-strong card-registration" style="border-radius: 15px;">
                     <div class="card-body">
-                        <h3 class="mb-4 pb-md-0 mb-md-3"> Teacher Registration Form</h3>
+                        <h3 class="mb-4 pb-md-0 mb-md-3"> Teacher Update Form</h3>
                         <form id="Teacher-update" method="post" enctype="multipart/form-data">
                             <div class="form-row">
                                 <div class="form-group col-md-6">
@@ -28,25 +28,20 @@ $imageid = [];
                                     <input type="email" class="form-control" id="inputEmail4" name="email" value="<?php echo $user_detail->user_email; ?>">
                                 </div>
                             </div>
-                            <div class="form-row">
-                                <!-- <div class="form-group col-md-6">
-                                    <label for="pwd">Password</label>
-                                    <input type="password" id="pwd" name="pwd" class="form-control">
-                                </div> -->
-                                    <div class="form-group col-md-12">
-                                    <label for="Teachingexp">Teaching Experience</label>
-                                    <select id="Teachingexp" class="form-control" name="teachingExperience">
-                                        <option value="none" <?php echo ($teacher_postmeta['teaching_experience'][0] == 'none') ? 'selected' : ''; ?>>None</option>
-                                        <option value="less than a year" <?php echo ($teacher_postmeta['teaching_experience'][0] == 'less than a year') ? 'selected' : ''; ?>>Less than a year</option>
-                                        <option value="1 - 2 years" <?php echo ($teacher_postmeta['teaching_experience'][0] == '1 - 2 years') ? 'selected' : ''; ?>>1 - 2 years</option>
-                                        <option value="2 - 4 years" <?php echo ($teacher_postmeta['teaching_experience'][0] == '2 - 4 years') ? 'selected' : '';  ?>>2 - 4 years</option>
-                                        <option value="4 - 7 years" <?php echo ($teacher_postmeta['teaching_experience'][0] == '4 - 7 years years') ? 'selected' : '';  ?>>4 - 7 years</option>
-                                        <option value="7 - 10 years" <?php echo ($teacher_postmeta['teaching_experience'][0] == '7 - 10 years years') ? 'selected' : '';  ?>>7 - 10 years</option>
-                                        <option value="10+ years" <?php echo ($teacher_postmeta['teaching_experience'][0] == '10+ years') ? 'selected' : '';  ?>>10+ years</option>
-                                    </select>
-                                    </select>
-                                </div>
+                            <div class="form-group col-md-12">
+                                <label for="Teachingexp">Teaching Experience</label>
+                                <select id="Teachingexp" class="form-control" name="teachingExperience">
+                                    <option value="none" <?php echo ($teacher_postmeta['teaching_experience'][0] == 'none') ? 'selected' : ''; ?>>None</option>
+                                    <option value="less than a year" <?php echo ($teacher_postmeta['teaching_experience'][0] == 'less than a year') ? 'selected' : ''; ?>>Less than a year</option>
+                                    <option value="1 - 2 years" <?php echo ($teacher_postmeta['teaching_experience'][0] == '1 - 2 years') ? 'selected' : ''; ?>>1 - 2 years</option>
+                                    <option value="2 - 4 years" <?php echo ($teacher_postmeta['teaching_experience'][0] == '2 - 4 years') ? 'selected' : '';  ?>>2 - 4 years</option>
+                                    <option value="4 - 7 years" <?php echo ($teacher_postmeta['teaching_experience'][0] == '4 - 7 years years') ? 'selected' : '';  ?>>4 - 7 years</option>
+                                    <option value="7 - 10 years" <?php echo ($teacher_postmeta['teaching_experience'][0] == '7 - 10 years years') ? 'selected' : '';  ?>>7 - 10 years</option>
+                                    <option value="10+ years" <?php echo ($teacher_postmeta['teaching_experience'][0] == '10+ years') ? 'selected' : '';  ?>>10+ years</option>
+                                </select>
+                                </select>
                             </div>
+
                             <div class="form-row">
                                 <div class="form-group col-md-4">
                                     <label for="inputLevel">Level</label>
@@ -85,36 +80,42 @@ $imageid = [];
                                     <textarea class="form-control" id="self-description" rows="3" name="selfDescription"><?php echo $post_data->post_content; ?></textarea>
                                 </div>
                             </div>
-                             <div class="card-group">
-                                <?php foreach ($unserialize_data as $key => $attachment_id) {
-                                 $imageid[$key] = $attachment_id;
-                                 $image = wp_get_attachment_image_url($attachment_id); 
+                            <div class="card-group">
+                                <?php foreach ($unserialize_data as $imageids) {
+                                    foreach ($imageids as $keys => $attachid) {
+                                        $imageid[] = $attachid;
+                                        $image = wp_get_attachment_image_url($attachid);
                                 ?>
-                                    <div class="card">
-                                        <img class="card-img-top" src="<?php  echo $image ?>" alt="Teacher_qualifications" height="300px" data-id="<?php echo $imageid[$key];?>">
-                                        <a href="#" class="remove btn btn-danger">remove</a>
-                                    </div>
-                                    <input type="hidden" name="image[]" id="imageid" value="<?php echo $imageid[$key]; ?>">
-                                    <?php 
-                                    } 
-                                    ?>
-                                </div> 
-                                
+                                        <div class="card">
+                                            <img class="card-img-top" src="<?php echo $image ?>" alt="Teacher_qualifications" height="300px" data-id="<?php echo $imageid[$keys]; ?>">
+                                            <a href="javascript:void(0);" class="remove btn btn-danger">remove</a>
+                                            <input type="hidden" name="image[]" id="imageid_<?php echo $keys; ?>" value="<?php echo $imageid[$keys]; ?>">
+                                        </div>
+                                        <?php
+                                    }
+                                }
+
+                                ?>
+                            </div>
+
                             <div class="form-group right-inner-addon col-md-9" id="count_1">
                                 <div class="form-group">
                                     <label for="images">Images</label>
-                                    <input type="file" name="qualifications[]" id="qualification_1" multiple class="form-control" required>
+                                    <span class="add input-group-addon"><i class="fa-solid fa-plus"></i></span>
+                                    <span class="remove input-group-addon-minus"><i class="fa-solid fa-xmark"></i></span>
+                                    <input type="file" name="qualifications[]" id="qualification_1" class="form-control" required>
                                 </div>
                                 <div id="image_preview" style="width:100%;"></div>
-                                </div>
-                            <input type="hidden" name="action" value="UpdateTeachers">
+                            </div>
+                            <a href="<?php echo get_the_permalink(698); ?>">Forget Password</a>
+                            <input type="hidden" name="removeId[]" id="remove_id">
+                            <input type="hidden" name="action" value="updateTeachers">
                             <button type="submit" class="btn btn-primary">Update</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
 </div>
 <?php get_footer();

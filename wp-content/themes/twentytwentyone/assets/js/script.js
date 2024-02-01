@@ -1,30 +1,65 @@
 $(document).ready(function () {
-
-  var imageIdValues = [];
-  var removeId,index;
-  $('input[name="image[]"]').each(function () {
-    imageIdValues.push($(this).val());
+  $("#forgetpassword").submit(function(event){
+    event.preventDefault();
+    var Form = $(this);
+    console.log(Form);
+    $.ajax({
+      url: ajax_object.ajax_url,
+      type: 'POST',
+      data:Form.serialize(),
+      success: function(response){
+        alert(response);
+      },
+      error: function(response){
+        alert(response);
+      }
+    })
   });
 
+  // remove images
   $(".remove").click(function () {
-    var $card = $(this).closest('.card'); // Get the closest parent card element
-    $card.find(".card-img-top").each(function () {
-      removeId = $(this).data("id"); // Access data-id attribute correctly
-       console.log(removeId);
-    });
- console.log(imageIdValues);
-  // Find the index of the element to remove
-var index = imageIdValues.indexOf(removeId);
-console.log(index);
-});
-// Check if the element exists in the array
-if (index !== -1) {
-    // Use the splice method to remove the element at the found index
-    imageIdValues.splice(index,removeId);
-}
+    var card = $(this).closest('.card');
+    var current_imageid = $(this).closest('.card').find(".card-img-top").data("id");
 
-// Now myArray will be [1, 2, 4, 5], with the element 3 removed
-console.log(imageIdValues);
+    // Send AJAX request to the server
+    $.ajax({
+      url: ajax_object.ajax_url,
+      type: 'POST',
+      data: {
+        'image_id': current_imageid,
+        'action': 'removeImages'
+      },
+      success: function (response) {
+      card.remove();
+      location.reload(true)
+
+      },
+      error:function(response){
+        alert(response);
+      }
+  });
+});
+
+  $("#Teacher-update").submit(function (event) {
+    event.preventDefault();
+    var formData = new FormData($("#Teacher-update")[0]);
+
+    $.ajax({
+      type: 'post',
+      url: ajax_object.ajax_url,
+      data: formData,
+      cache: false,
+      contentType: false,
+      processData: false,
+      success: function (response) {
+        alert(response);
+      },
+      error: function (xhr, status, error) { // Modified error function parameters to handle proper error response
+        var errorMessage = xhr.status + ': ' + xhr.statusText;
+        alert('Error - ' + errorMessage);
+      }
+    });
+  });
 
 
   // Now you can do something with the newImages array
@@ -135,7 +170,6 @@ console.log(imageIdValues);
     e.preventDefault()
     var email = $('#login_email').val();
     var password = $('#login_password').val();
-    console.log(ajax_object.ajax_url);
     $.ajax({
       type: 'POST',
       url: ajax_object.ajax_url,

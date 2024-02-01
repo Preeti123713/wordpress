@@ -7,7 +7,6 @@
   <title> Website Layout |TeachingPlatform</title>
   <?php wp_head(); ?>
 </head>
-
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="#">TeachingPlatform</a>
