@@ -1,16 +1,84 @@
 $(document).ready(function () {
-  $("#forgetpassword").submit(function(event){
+  $('.edit').click(function () {
+    // Get the value of the hidden input field inside the previous-image div
+    var imageId = $("#imageid").val();
+    // Find the div with the class previous-image containing the input field with the specified ID
+    var previousImageDiv = $('[value="' + imageId + '"]').closest('.previous-image');
+    //ajax call 
+    $.ajax({
+    type: 'post',
+    url:ajax_object.ajax_url,
+    data:{
+      'image_id':imageId,
+      'action': 'removeImages'
+    },
+    success:function(response){
+      alert(response);
+        // Remove the div with the class previous-image
+    previousImageDiv.remove();
+    },
+    error:function(response){
+      alert(response);
+    } 
+    })
+  });
+  $('#user-img').on('change', function () {
+    $('.previous-image').css('display', 'block');
+  });
+  $('#user-img').on('change', function () {
+    $('#image-preview').css('display', 'block');
+    previewImage(this);
+  });
+
+  function previewImage(input) {
+    if (input.files && input.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        $('#image-preview').html('<img src="' + e.target.result + '" style="max-width:100%; max-height:100%;" />');
+      }
+      reader.readAsDataURL(input.files[0]); // convert to base64 string
+    }
+  }
+  $('#update').submit(function (event) {
+    // Prevent default form submission
+    event.preventDefault();
+    alert(ajax_object.ajax_url);
+    // Show an alert after form submission
+    var formData = new FormData($("#update")[0]);
+    $.ajax({
+      type: 'post',
+      url: ajax_object.ajax_url,
+      data: formData,
+      cache: false,
+      contentType: false,
+      processData: false,
+      success: function (response) {
+        alert(response);
+         // Reload the page
+         location.reload();
+          if ($('#user-img')[0].files.length === 0) {
+            $('.previous-image').remove();
+        }
+      },
+      error: function (xhr, status, error) { // Modified error function parameters to handle proper error response
+        var errorMessage = xhr.status + ': ' + xhr.statusText;
+        alert('Error - ' + errorMessage);
+      }
+    });
+  });
+
+  $("#forgetpassword").submit(function (event) {
     event.preventDefault();
     var Form = $(this);
     console.log(Form);
     $.ajax({
       url: ajax_object.ajax_url,
       type: 'POST',
-      data:Form.serialize(),
-      success: function(response){
+      data: Form.serialize(),
+      success: function (response) {
         alert(response);
       },
-      error: function(response){
+      error: function (response) {
         alert(response);
       }
     })
@@ -30,15 +98,15 @@ $(document).ready(function () {
         'action': 'removeImages'
       },
       success: function (response) {
-      card.remove();
-      location.reload(true)
+        card.remove();
+        location.reload(true)
 
       },
-      error:function(response){
+      error: function (response) {
         alert(response);
       }
+    });
   });
-});
 
   $("#Teacher-update").submit(function (event) {
     event.preventDefault();
@@ -182,6 +250,9 @@ $(document).ready(function () {
       success: function (response) {
         $('#registration-message').html(response).fadeIn(1000);
         window.location.reload();
+      },
+      error: function (response) {
+        $('#registration-message').html(response).fadeIn(1000);
       }
     });
   });

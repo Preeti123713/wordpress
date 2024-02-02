@@ -21,7 +21,7 @@
                     <a href="#"><i class="fa-solid fa-chalkboard"></i><span>Courses</span></a>
                 </li>
                 <li>
-                    <a href="#"><i class="fa-solid fa-money-bill"></i><span>Payment Info</span></a>
+                    <a href="<?php echo get_the_permalink(766);?>"><i class="fa-solid fa-money-bill"></i><span>Payment Info</span></a>
                 </li>
                 <li>
                     <a href="<?php echo get_the_permalink(712) ?>"><i class="fas fa-chalkboard-teacher"></i><span>MyBooking</span></a>

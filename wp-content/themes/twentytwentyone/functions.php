@@ -743,7 +743,6 @@ function enqueue_custom_js()
 	wp_enqueue_script('creditCardValidator', 'https://cdnjs.cloudflare.com/ajax/libs/jquery-creditcardvalidator/1.0.0/jquery.creditCardValidator.js', array('jquery'), '1.0', true);
 	// wp_enqueue_script('kit-fontawesome', 'https://kit.fontawesome.com/7a4b62b0a4.js', array('jquery'), '1.0',false);
 
-
 	$ajax_data = array(
 		'ajax_url' => admin_url('admin-ajax.php'),
 		'ajax_nonce' => wp_create_nonce('script-nonce'),
@@ -1212,7 +1211,7 @@ function updateTeachers()
 
 			// it is time to add our uploaded image into WordPress media library
 			$attachment_id = wp_insert_attachment(
-			array(
+				array(
 					'guid'           => $upload['url'],
 					'post_mime_type' => $upload['type'],
 					'post_title'     => basename($upload['file']),
@@ -1269,8 +1268,11 @@ add_action('wp_ajax_removeImages', 'removeImages');
 add_action('wp_ajax_nopriv_removeImages', 'removeImages');
 function removeImages()
 {
+	$user_id = get_current_user_id();
 	$image_id = $_POST['image_id'];
 	$resImg = wp_delete_attachment($image_id);  // delete an image;
+	// update the meta in case of student profile image
+	update_user_meta($user_id,'user_profile_image','');
 	exit;
 }
 // To reset the password
@@ -1309,5 +1311,81 @@ function ForgetPassword()
 	} else {
 		echo "Current password is incorrect.";
 	}
+	exit;
+}
+// To update the students
+add_action('wp_ajax_updateStudent', 'updateStudent');
+add_action('wp_ajax_nopriv_updateStudent', 'updateStudent');
+
+function updateStudent()
+{
+	$username = $_POST['name'];
+	$email = $_POST['email'];
+	$bio = isset($_POST['bio']) ? $_POST['bio'] : '👩‍🎓 Ambitious student balancing a full-time job with a strong desire to master French and German. 🌐📚 Committed to personal growth and embracing new linguistic challenges. #LanguageEnthusiast #CareerDriven #BilingualGoals';
+	$image = $_FILES['profile-img'];
+	$current_user = wp_get_current_user();
+	// Prepare data for updating the user
+	$user_id = $current_user->ID;
+
+	$userdata = array(
+		'ID'        => $user_id,
+		'user_email' => $email,
+		'user_login' => $username,
+		'display_name' => $username
+	);
+	$updated = wp_update_user($userdata);
+	// Check if the update was successful
+	if (is_wp_error($updated)) {
+		echo "An error occurred while updating the user information.";
+	} else {
+		echo "User information updated successfully" . " " . $user_id;
+	}
+	if(!empty($image)){
+	$file = array(
+		'name' => $image['name'],
+		'type' => $image['type'],
+		'tmp_name' => $image['tmp_name'],
+		'error' => $image['error'],
+		'size' => $image['size']
+	);
+	// for multiple file upload.
+	$upload_overrides = array('test_form' => false);
+	$upload = wp_handle_upload($file, $upload_overrides);
+
+	if (!empty($upload['error'])) {
+		wp_die($upload['error']);
+	}
+
+	// it is time to add our uploaded image into WordPress media library
+	$attachment_id = wp_insert_attachment(
+		array(
+			'guid'           => $upload['url'],
+			'post_mime_type' => $upload['type'],
+			'post_title'     => basename($upload['file']),
+			'post_content'   => '',
+			'post_status'    => 'inherit',
+		),
+		$upload['file']
+	);
+
+	if (is_wp_error($attachment_id) || !$attachment_id) {
+		wp_die('Upload error.');
+	}
+
+	// update medatata, regenerate image sizes
+	require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+	wp_update_attachment_metadata(
+		$attachment_id,
+		wp_generate_attachment_metadata($attachment_id, $upload['file'])
+	);
+	update_user_meta($user_id, 'student_description', strtolower($bio));
+	$result	= update_user_meta($user_id, 'user_profile_image', $attachment_id);
+	if ($result){
+		echo 'User meta updated successfully.';
+	} else {
+		echo 'Failed to update post meta.';
+	}
+}
 	exit;
 }
