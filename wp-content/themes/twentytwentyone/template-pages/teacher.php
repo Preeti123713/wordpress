@@ -32,7 +32,6 @@ if ($the_main_loop->have_posts()) {
         $arr[] = get_the_ID();
     }
 }
-// print_r($arr);
 ?>
 <form method="GET" id="teacherlisting" action='<?php echo get_permalink(30); ?>'>
     <div class="container">
@@ -45,6 +44,9 @@ if ($the_main_loop->have_posts()) {
                 <div class="col-md-4">
                     <!-- Your card HTML goes here -->
                     <div class="card">
+                    <a href='<?php echo get_the_permalink(805) . "?data=" . base64_encode($res);?>'>
+                                <img class="card-img-top" src="https://png.pngtree.com/png-vector/20191110/ourmid/pngtree-avatar-icon-profile-icon-member-login-vector-isolated-png-image_1978396.jpg" alt="Card image cap" style="height:150px; width:150px" data-id="<?php echo $res; ?>">
+                            </a>
                         <div class="card-body">
                             <input type="checkbox" class="form-check-input" id="teacher_id" name="teachers[]" value="<?php echo $res; ?>">
                             <h5 class="card-title"><?php echo get_the_title($res); ?></h5>

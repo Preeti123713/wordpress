@@ -7,9 +7,10 @@ $timeperiod = $_GET['timeperiodd'];
 $pplan = [];
 $result = json_decode(base64_decode($_GET['teacherdataa'][0]));
 $total_amount = 0;
+$user_id = get_current_user_id();
+$user = get_userdata($user_id);
 ?>
-
-<div class="container">
+<div class="container mt-4">
 	<?php
 	if (is_user_logged_in()) {
 		//      User is logged in
@@ -67,7 +68,7 @@ $total_amount = 0;
 		</div>
 	</div>
 </div>
-<div class="details-container my-5">
+<div class="container my-5">
 	<div class="details">
 		<?php foreach ($result as $res => $value) { ?>
 			<h4>Teacher`s Name: <?php echo get_the_title($res) ?> </h4>
@@ -88,17 +89,21 @@ $total_amount = 0;
 		$resultNew[$key] = array($pplan[$key], $value[0], $value[1], $pricevalue);
 	}
 	$newteacherdata = array($resultNew, $timeperiod, $purpose);
+	if(is_user_logged_in()){
+	$user_login ? isset($user->user_login): ' ';
+	$user_email ? isset($user->user_email): ' ';
+	}
 	?>
 	<div class="billing">
 		<form id="payment-form" method="post">
 			<div class="mb-3">
 				<label for="name" class="form-label">Name:</label>
-				<input type="text" class="form-control" id="name" name="name" required>
+				<input type="text" class="form-control" id="name" name="name" value="<?php echo $user_login;?>">
 			</div>
 
 			<div class="mb-3">
 				<label for="email" class="form-label">Email:</label>
-				<input type="email" class="form-control" id="billing_email" name="bill_email" required>
+				<input type="email" class="form-control" id="billing_email" name="bill_email" value="<?php echo $user_email;?>">
 			</div>
 
 			<div class="mb-3">
@@ -160,6 +165,7 @@ $total_amount = 0;
 			<input type="hidden" name="action" value="create_payment_intent_callback">
 			<input type="hidden" name="data" value="<?php echo base64_encode(json_encode($newteacherdata)); ?>">
 		</form>
+		
 		<div id="response"></div>
 	</div>
 </div>

@@ -279,7 +279,7 @@ img.profile-image {
 
 .previous-image {
     position: relative;
-    display: none;
+    /* display: none; */
 }
 
 .previous-image:hover .edit {
@@ -294,6 +294,8 @@ img.profile-image {
     bottom: 63px;
     display: none;
 }
+
 .edit a {
-	color: #000;
+    color: #000;
 }
+

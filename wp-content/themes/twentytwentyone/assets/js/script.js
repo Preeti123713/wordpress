@@ -6,25 +6,23 @@ $(document).ready(function () {
     var previousImageDiv = $('[value="' + imageId + '"]').closest('.previous-image');
     //ajax call 
     $.ajax({
-    type: 'post',
-    url:ajax_object.ajax_url,
-    data:{
-      'image_id':imageId,
-      'action': 'removeImages'
-    },
-    success:function(response){
-      alert(response);
+      type: 'post',
+      url: ajax_object.ajax_url,
+      data: {
+        'image_id': imageId,
+        'action': 'proremoveImages'
+      },
+      success: function (response) {
+        alert(response);
         // Remove the div with the class previous-image
-    previousImageDiv.remove();
-    },
-    error:function(response){
-      alert(response);
-    } 
+        previousImageDiv.remove();
+      },
+      error: function (response) {
+        alert(response);
+      }
     })
   });
-  $('#user-img').on('change', function () {
-    $('.previous-image').css('display', 'block');
-  });
+
   $('#user-img').on('change', function () {
     $('#image-preview').css('display', 'block');
     previewImage(this);
@@ -54,10 +52,10 @@ $(document).ready(function () {
       processData: false,
       success: function (response) {
         alert(response);
-         // Reload the page
-         location.reload();
-          if ($('#user-img')[0].files.length === 0) {
-            $('.previous-image').remove();
+        // Reload the page
+        location.reload();
+        if ($('#user-img')[0].files.length === 0) {
+          $('.previous-image').remove();
         }
       },
       error: function (xhr, status, error) { // Modified error function parameters to handle proper error response
@@ -98,8 +96,8 @@ $(document).ready(function () {
         'action': 'removeImages'
       },
       success: function (response) {
+        console.log(response);
         card.remove();
-        location.reload(true)
 
       },
       error: function (response) {
@@ -111,7 +109,6 @@ $(document).ready(function () {
   $("#Teacher-update").submit(function (event) {
     event.preventDefault();
     var formData = new FormData($("#Teacher-update")[0]);
-
     $.ajax({
       type: 'post',
       url: ajax_object.ajax_url,
@@ -121,6 +118,7 @@ $(document).ready(function () {
       processData: false,
       success: function (response) {
         alert(response);
+        console.log(response);
       },
       error: function (xhr, status, error) { // Modified error function parameters to handle proper error response
         var errorMessage = xhr.status + ': ' + xhr.statusText;
@@ -128,7 +126,6 @@ $(document).ready(function () {
       }
     });
   });
-
 
   // Now you can do something with the newImages array
   $('#ajax-login-form').submit(function (event) {

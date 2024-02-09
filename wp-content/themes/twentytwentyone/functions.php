@@ -1155,7 +1155,7 @@ function updateTeachers()
 	$user_id = get_current_user_id();
 	$userdata = get_user_meta($user_id, 'teacher_post_id');
 	$post_id = $userdata[0];
-	$images = $_POST['image'];
+	$images = $_POST['removeId'];
 	$username = $_POST['name'];
 	$teachingExperience = $_POST['teachingExperience'];
 	$email = $_POST['email'];
@@ -1177,64 +1177,61 @@ function updateTeachers()
 		update_post_meta($post_id, 'level', strtolower($_POST["level"]));
 		update_post_meta($post_id, 'teaching_experience', strtolower($teachingExperience));
 
-
 		// WordPress environmet
 		require(dirname(__FILE__) . '/../../../wp-load.php');
 
 		// it allows us to use wp_handle_upload() function
 		require_once(ABSPATH . 'wp-admin/includes/file.php');
 
-		// you can add some kind of validation here
-		if (empty($_FILES['qualifications'])) {
-			wp_die('No files selected.');
-		}
-
 		// for multiple file upload.
 		$upload_overrides = array('test_form' => false);
 
 		$files = $_FILES['qualifications'];
-		foreach ($files['name'] as $key => $name) {
+		if (!empty($files['name'][0])) {
+			foreach ($files['name'] as $key => $name) {
 
-			$file = array(
-				'name' => $files['name'][$key],
-				'type' => $files['type'][$key],
-				'tmp_name' => $files['tmp_name'][$key],
-				'error' => $files['error'][$key],
-				'size' => $files['size'][$key]
-			);
+				$file = array(
+					'name' => $files['name'][$key],
+					'type' => $files['type'][$key],
+					'tmp_name' => $files['tmp_name'][$key],
+					'error' => $files['error'][$key],
+					'size' => $files['size'][$key]
+				);
 
-			$upload = wp_handle_upload($file, $upload_overrides);
+				$upload = wp_handle_upload($file, $upload_overrides);
 
-			if (!empty($upload['error'])) {
-				wp_die($upload['error']);
+				if (!empty($upload['error'])) {
+					wp_die($upload['error']);
+				}
+
+				// it is time to add our uploaded image into WordPress media library
+				$attachment_id = wp_insert_attachment(
+					array(
+						'guid'           => $upload['url'],
+						'post_mime_type' => $upload['type'],
+						'post_title'     => basename($upload['file']),
+						'post_content'   => '',
+						'post_status'    => 'inherit',
+					),
+					$upload['file']
+				);
+
+				if (is_wp_error($attachment_id) || !$attachment_id) {
+					wp_die('Upload error.');
+				}
+
+				// update medatata, regenerate image sizes
+				require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+				wp_update_attachment_metadata(
+					$attachment_id,
+					wp_generate_attachment_metadata($attachment_id, $upload['file'])
+				);
+				$array[] = $attachment_id;
 			}
-
-			// it is time to add our uploaded image into WordPress media library
-			$attachment_id = wp_insert_attachment(
-				array(
-					'guid'           => $upload['url'],
-					'post_mime_type' => $upload['type'],
-					'post_title'     => basename($upload['file']),
-					'post_content'   => '',
-					'post_status'    => 'inherit',
-				),
-				$upload['file']
-			);
-
-			if (is_wp_error($attachment_id) || !$attachment_id) {
-				wp_die('Upload error.');
-			}
-
-			// update medatata, regenerate image sizes
-			require_once(ABSPATH . 'wp-admin/includes/image.php');
-
-			wp_update_attachment_metadata(
-				$attachment_id,
-				wp_generate_attachment_metadata($attachment_id, $upload['file'])
-			);
-			$array[] = $attachment_id;
 		}
-		$merge_attachmentid[] = array_merge($images, $array);
+		$merge_attachmentid = array_merge($images, $array);
+		print_r($merge_attachmentid);
 		$result	= update_post_meta($post_id, 'post_attachment', $merge_attachmentid);
 		if ($result) {
 			echo 'Post meta updated successfully.';
@@ -1268,11 +1265,8 @@ add_action('wp_ajax_removeImages', 'removeImages');
 add_action('wp_ajax_nopriv_removeImages', 'removeImages');
 function removeImages()
 {
-	$user_id = get_current_user_id();
 	$image_id = $_POST['image_id'];
 	$resImg = wp_delete_attachment($image_id);  // delete an image;
-	// update the meta in case of student profile image
-	update_user_meta($user_id,'user_profile_image','');
 	exit;
 }
 // To reset the password
@@ -1340,52 +1334,64 @@ function updateStudent()
 	} else {
 		echo "User information updated successfully" . " " . $user_id;
 	}
-	if(!empty($image)){
-	$file = array(
-		'name' => $image['name'],
-		'type' => $image['type'],
-		'tmp_name' => $image['tmp_name'],
-		'error' => $image['error'],
-		'size' => $image['size']
-	);
-	// for multiple file upload.
-	$upload_overrides = array('test_form' => false);
-	$upload = wp_handle_upload($file, $upload_overrides);
+	if (!empty($image)) {
+		$file = array(
+			'name' => $image['name'],
+			'type' => $image['type'],
+			'tmp_name' => $image['tmp_name'],
+			'error' => $image['error'],
+			'size' => $image['size']
+		);
+		// for multiple file upload.
+		$upload_overrides = array('test_form' => false);
+		$upload = wp_handle_upload($file, $upload_overrides);
 
-	if (!empty($upload['error'])) {
-		wp_die($upload['error']);
+		if (!empty($upload['error'])) {
+			wp_die($upload['error']);
+		}
+
+		// it is time to add our uploaded image into WordPress media library
+		$attachment_id = wp_insert_attachment(
+			array(
+				'guid'           => $upload['url'],
+				'post_mime_type' => $upload['type'],
+				'post_title'     => basename($upload['file']),
+				'post_content'   => '',
+				'post_status'    => 'inherit',
+			),
+			$upload['file']
+		);
+
+		if (is_wp_error($attachment_id) || !$attachment_id) {
+			wp_die('Upload error.');
+		}
+
+		// update medatata, regenerate image sizes
+		require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+		wp_update_attachment_metadata(
+			$attachment_id,
+			wp_generate_attachment_metadata($attachment_id, $upload['file'])
+		);
+		update_user_meta($user_id, 'student_description', strtolower($bio));
+		$result	= update_user_meta($user_id, 'user_profile_image', $attachment_id);
+		if ($result) {
+			echo 'User meta updated successfully.';
+		} else {
+			echo 'Failed to update post meta.';
+		}
 	}
-
-	// it is time to add our uploaded image into WordPress media library
-	$attachment_id = wp_insert_attachment(
-		array(
-			'guid'           => $upload['url'],
-			'post_mime_type' => $upload['type'],
-			'post_title'     => basename($upload['file']),
-			'post_content'   => '',
-			'post_status'    => 'inherit',
-		),
-		$upload['file']
-	);
-
-	if (is_wp_error($attachment_id) || !$attachment_id) {
-		wp_die('Upload error.');
-	}
-
-	// update medatata, regenerate image sizes
-	require_once(ABSPATH . 'wp-admin/includes/image.php');
-
-	wp_update_attachment_metadata(
-		$attachment_id,
-		wp_generate_attachment_metadata($attachment_id, $upload['file'])
-	);
-	update_user_meta($user_id, 'student_description', strtolower($bio));
-	$result	= update_user_meta($user_id, 'user_profile_image', $attachment_id);
-	if ($result){
-		echo 'User meta updated successfully.';
-	} else {
-		echo 'Failed to update post meta.';
-	}
+	exit;
 }
+// To proremove profile image from database
+add_action('wp_ajax_proremoveImages', 'proremoveImages');
+add_action('wp_ajax_nopriv_proremoveImages', 'proremoveImages');
+function proremoveImages()
+{
+	$user_id = get_current_user_id();
+	$image_id = $_POST['image_id'];
+	$resImg = wp_delete_attachment($image_id);  // delete an image;
+	// update the meta in case of student profile image
+	update_user_meta($user_id, 'user_profile_image', '');
 	exit;
 }

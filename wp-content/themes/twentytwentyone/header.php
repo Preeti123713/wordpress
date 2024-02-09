@@ -16,7 +16,7 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-          <a class="nav-link" href="<?php echo get_the_permalink(81);?>">Home</a>
+          <a class="nav-link" href="<?php echo get_the_permalink(81); ?>">Home</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#">About</a>
@@ -30,9 +30,30 @@
         <li class="nav-item">
           <a class="nav-link" href="<?php echo get_the_permalink(81); ?>">To Become Teacher</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="<?php echo get_the_permalink(570); ?>">Login</a>
-        </li>
+        <?php if (current_user_can('student')) {
+        ?>
+          <li class="nav-item">
+            <a class="nav-link" href="<?php echo get_the_permalink(706);
+                                      ?>">Profile</a>
+          </li>
+        <?php  } elseif (current_user_can('teacher')) {
+        ?>
+          <li class="nav-item">
+            <a class="nav-link" href="<?php echo get_the_permalink(399);
+                                      ?>">Profile</a>
+          </li>
+        <?php }
+        ?>
+        <?php if (is_user_logged_in()) {
+        ?>
+          <li class="nav-item" style="transform:translateY(-100%);">
+            <a class="nav-link " href="<?php echo get_the_permalink(570); ?>">Login</a>
+          </li>
+        <?php } else { ?>
+          <li class="nav-item">
+            <a class="nav-link " href="<?php echo get_the_permalink(570); ?>">Login</a>
+          </li>
+        <?php } ?>
       </ul>
-     </div>
+    </div>
   </nav>

@@ -5,7 +5,6 @@ $user_id = $current_user->ID;
 $default_img_id = 727;
 $student_description = get_user_meta($user_id, 'student_description');
 $student_image_id = get_user_meta($user_id, 'user_profile_image');
-print_r($student_image_id);
     // User profile image is not empty
     $url = wp_get_attachment_image_url($student_image_id[0]);
 ?>
@@ -29,11 +28,19 @@ print_r($student_image_id);
                                 <label for="user-description">Bio</label>
                                 <textarea class="form-control" id="user-description" name="bio" rows="3"><?php echo $student_description[0]; ?></textarea>
                             </div>
+                            <?php if(!empty($url)){?>
                             <div class="previous-image">
                                 <img src='<?php echo $url; ?>' class="card-img-top profile-image" alt="profile_image">
                                 <div class="edit"><a href="javascript:void(0)"><i class="fa-solid fa-trash"></i></a></div>
                                 <input type="hidden" name="image" id="imageid" value="<?php echo $student_image_id[0]; ?>">
                             </div>
+                           <?php }else{?> 
+                            <div class="previous-image" style="display: none;">
+                                <img src='<?php echo $url; ?>' class="card-img-top profile-image" alt="profile_image">
+                                <div class="edit"><a href="javascript:void(0)"><i class="fa-solid fa-trash"></i></a></div>
+                                <input type="hidden" name="image" id="imageid" value="<?php echo $student_image_id[0]; ?>">
+                            </div>
+                         <?php }?>
                     </div>
                     <div class="form-group col-md-12">
                         <label for="user-img">Profile Image</label>
