@@ -3,14 +3,16 @@ get_header('student');
 $current_user = wp_get_current_user();
 $user_id = $current_user->ID;
 $default_img_id = 727;
-$student_description = get_user_meta($user_id, 'student_description');
+$student_description = get_user_meta($user_id, 'student_description', true);
 $student_image_id = get_user_meta($user_id, 'user_profile_image');
-    // User profile image is not empty
+// User profile image is not empty
+if (!empty($student_image_id)) {
     $url = wp_get_attachment_image_url($student_image_id[0]);
+}
 ?>
 <div class="vh-75 light-blue">
     <div class="container py-5  h-100">
-        <div class="row justify-content-center align-items-center ">
+        <div class="row justify-content-center align-items-center">
             <div class="col-12 col-lg-9 col-xl-7">
                 <div class="card shadow-2-strong card-registration" style="border-radius: 15px;">
                     <div class="card-body">
@@ -25,22 +27,14 @@ $student_image_id = get_user_meta($user_id, 'user_profile_image');
                                 <input type="text" class="form-control" id="email" name="email" value="<?php echo $current_user->user_email; ?>">
                             </div>
                             <div class="form-group col-md-12">
-                                <label for="user-description">Bio</label>
-                                <textarea class="form-control" id="user-description" name="bio" rows="3"><?php echo $student_description[0]; ?></textarea>
+                            <label for="user-description">Bio</label>
+                            <textarea class="form-control" id="user-description" name="bio" rows="3"><?php echo !empty($student_description) ? $student_description : 'example'; ?></textarea>
                             </div>
-                            <?php if(!empty($url)){?>
-                            <div class="previous-image">
+                            <div class="previous-image" <?php echo !empty($url) ? '' : 'style="display: none;"'; ?>>
                                 <img src='<?php echo $url; ?>' class="card-img-top profile-image" alt="profile_image">
                                 <div class="edit"><a href="javascript:void(0)"><i class="fa-solid fa-trash"></i></a></div>
                                 <input type="hidden" name="image" id="imageid" value="<?php echo $student_image_id[0]; ?>">
                             </div>
-                           <?php }else{?> 
-                            <div class="previous-image" style="display: none;">
-                                <img src='<?php echo $url; ?>' class="card-img-top profile-image" alt="profile_image">
-                                <div class="edit"><a href="javascript:void(0)"><i class="fa-solid fa-trash"></i></a></div>
-                                <input type="hidden" name="image" id="imageid" value="<?php echo $student_image_id[0]; ?>">
-                            </div>
-                         <?php }?>
                     </div>
                     <div class="form-group col-md-12">
                         <label for="user-img">Profile Image</label>

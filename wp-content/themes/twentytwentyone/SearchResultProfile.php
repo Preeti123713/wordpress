@@ -8,6 +8,7 @@ echo $Teacher_id;
 $sql = "SELECT * FROM `wp_usermeta` WHERE `meta_key`='teacher_post_id' AND `meta_value` = $Teacher_id";
 // Execute the query
 $results = $wpdb->get_results($sql);
+print_r($results);
 $searUserid = $results[0]->user_id;
 $user = get_user_by('ID', $searUserid);
 $level = get_post_meta($Teacher_id, 'level', true);

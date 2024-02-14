@@ -48,8 +48,6 @@ $country = get_post_meta($teacher_id, 'country', true);
                   foreach ($attachment_id as $key => $id) {
                     $image_url = wp_get_attachment_url($attachment_id[$key]); ?>
                     <img src="<?php echo $image_url; ?>" alt="demo_image" width="100px" height="100px">
-
-
                 <?php }
                 } ?>
               </div>
@@ -108,5 +106,4 @@ $country = get_post_meta($teacher_id, 'country', true);
           </div>
         </div>
 </section>
-
 <?php get_footer(); ?>

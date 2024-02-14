@@ -84,6 +84,7 @@ $(document).ready(function () {
 
   // remove images
   $(".remove").click(function () {
+    alert("remove");
     var card = $(this).closest('.card');
     var current_imageid = $(this).closest('.card').find(".card-img-top").data("id");
 
@@ -117,9 +118,9 @@ $(document).ready(function () {
       contentType: false,
       processData: false,
       success: function (response) {
-        alert(response);
-        console.log(response);
-      },
+      alert(response);
+      // location.reload();     
+     },
       error: function (xhr, status, error) { // Modified error function parameters to handle proper error response
         var errorMessage = xhr.status + ': ' + xhr.statusText;
         alert('Error - ' + errorMessage);

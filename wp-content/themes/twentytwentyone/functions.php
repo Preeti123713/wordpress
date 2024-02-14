@@ -726,21 +726,22 @@ function enqueue_custom_styles()
 	// wp_enqueue_style('new-css', get_template_directory_uri() . './assets/css/style.css', array(), '1.0', 'all');
 	// wp_enqueue_style('zone', get_template_directory_uri() . './assets/css/zone.css', array(), '1.0', 'all');
 	wp_enqueue_style('bootstrap-css', 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css', array(), '1.0', 'all');
-	wp_enqueue_style('jquery-ui-css', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css', array(), '1.0', 'all');
+	// wp_enqueue_style('jquery-ui-css', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css', array(), '1.0', 'all');
 	wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css', array(), '1.0', 'all');
-	wp_enqueue_style('animate', 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css', array(), '1.0', 'all');
+	// wp_enqueue_style('animate', 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css', array(), '1.0', 'all');
 }
 add_action('wp_enqueue_scripts', 'enqueue_custom_styles');
 
 function enqueue_custom_js()
 {
-	wp_enqueue_script('jqueryxv', 'https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js', array(), '1.0', true);
+	wp_enqueue_script('jqueryxv', 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.slim.min.js', array(), '1.0', true);
 	wp_enqueue_script('stripe', 'https://js.stripe.com/v3/', array(), null, false);
 	wp_enqueue_script('script', get_template_directory_uri() . '/assets/js/script.js', array('jquery'), '1.0', true);
-	wp_enqueue_script('jquery-ui-js', 'https://code.jquery.com/ui/1.12.1/jquery-ui.js', array('jquery'), '1.0', true);
+	// wp_enqueue_script('jquery-ui-js', 'https://code.jquery.com/ui/1.12.1/jquery-ui.js', array('jquery'), '1.0', true);
 	wp_enqueue_script('popper', "https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js", array('jquery'), '1.0', true);
 	wp_enqueue_script('bootstrap-js', 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js', array('jquery'), '1.0', true);
 	wp_enqueue_script('creditCardValidator', 'https://cdnjs.cloudflare.com/ajax/libs/jquery-creditcardvalidator/1.0.0/jquery.creditCardValidator.js', array('jquery'), '1.0', true);
+	// wp_enqueue_script('bootstrap.bundle.min.js', 'https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js', array('jquery'), '1.0', true);
 	// wp_enqueue_script('kit-fontawesome', 'https://kit.fontawesome.com/7a4b62b0a4.js', array('jquery'), '1.0',false);
 
 	$ajax_data = array(
@@ -1230,8 +1231,9 @@ function updateTeachers()
 				$array[] = $attachment_id;
 			}
 		}
+		// print_r($images);
 		$merge_attachmentid = array_merge($images, $array);
-		print_r($merge_attachmentid);
+		// print_r($merge_attachmentid);
 		$result	= update_post_meta($post_id, 'post_attachment', $merge_attachmentid);
 		if ($result) {
 			echo 'Post meta updated successfully.';
@@ -1274,6 +1276,7 @@ add_action('wp_ajax_ForgetPassword', 'ForgetPassword');
 add_action('wp_ajax_nopriv_ForgetPassword', 'ForgetPassword');
 function ForgetPassword()
 {
+global $current_user;
 	$currentpassword = $_POST['pwd'];
 	$confirmpassword = $_POST['confirmpassword'];
 	$newpassword = $_POST['newpassword'];
@@ -1282,8 +1285,10 @@ function ForgetPassword()
 		echo "New password and confirm password do not match.";
 		exit;
 	}
+	
 	// Get the current user's information
 	$current_user = wp_get_current_user();
+	
 	// Check if the entered current password matches the user's actual password
 	if (wp_check_password($currentpassword, $current_user->user_pass, $current_user->ID)) {
 		// Prepare data for updating the user
@@ -1292,21 +1297,71 @@ function ForgetPassword()
 			'ID' => $user_id,
 			'user_pass' => $newpassword
 		);
-
+	
 		// Update the user's information
 		$updated = wp_update_user($user_data);
 
+	
 		// Check if the update was successful
-		if (is_wp_error($updated)) {
-			echo "An error occurred while updating the user`s password.";
+		if ($updated) {
+			$user_email = wp_get_current_user()->user_email;
+			$subject = "Your password has been changed";
+	
+			// Simple HTML content for the email
+			$htmlContent = "
+				<html>
+				<body>
+					<p>Your password has been changed successfully.</p>
+					<p><a href='#'>Back to Login</a></p>
+				</body>
+				</html>";
+	
+			// Build the email data
+			$data = array(
+				"sender" => array(
+					"email" => 'preetir@graycelltech.com',
+					"name" => 'Preeti Rawat'
+				),
+				"to" => array(
+					array(
+						"email" => $user_email,
+						"name" => 'User'
+					)
+				),
+				"subject" => $subject,
+				"htmlContent" => $htmlContent
+			);
+	
+			// Send email using Sendinblue API
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, 'https://api.sendinblue.com/v3/smtp/email');
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			$headers = array(
+				'Accept: application/json',
+				'Api-Key: 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',
+				'Content-Type: application/json'
+			);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+			$result = curl_exec($ch);
+			// print_r($result);
+			if (curl_errno($ch)) {
+				echo 'Error:' . curl_error($ch);
+				exit();
+			}
+			curl_close($ch);
+	
+			echo "success";
+			exit;
 		} else {
-			echo "User`s password updated successfully.";
+			echo "Failed to update user's password.";
 		}
 	} else {
 		echo "Current password is incorrect.";
+		exit();
 	}
-	exit;
-}
+}	
 // To update the students
 add_action('wp_ajax_updateStudent', 'updateStudent');
 add_action('wp_ajax_nopriv_updateStudent', 'updateStudent');

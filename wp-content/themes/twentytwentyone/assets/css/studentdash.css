@@ -1,17 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
 
-* {
+ * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: "Poppins", sans-serif;
     /* border: none;
     outline: none;  */
-}
+ } 
 
 .student-container {
     display: flex;
-
 }
 
 .sidebar-stud {
@@ -37,7 +36,6 @@
     height: 80px;
     padding: 16px;
 }
-
 .menu {
     height: 88%;
     position: relative;
@@ -65,10 +63,9 @@
     align-items: center;
     gap: 1.5em;
 }
-
-.menu a span {
+ .menu a span {
     overflow: hidden;
-}
+} 
 
 .menu a i {
     font-size: 1.2rem;
@@ -186,8 +183,7 @@
     font-family: 'Courier New', Courier, monospace;
     font-weight: 600;
 }
-
-.icon {
+ .icon {
     color: #fff;
     padding: 1rem;
     height: 60px;
@@ -196,7 +192,7 @@
     border-radius: 50%;
     font-size: 1.5rem;
     background: red;
-}
+} 
 
 .payment-card-details {
     font-size: 18px;
@@ -226,7 +222,7 @@
     background: red;
 }
 
-.dark-purple {
+ .dark-purple {
     background: purple;
 }
 
@@ -240,7 +236,7 @@
 
 .profile-container {
     margin: 3em;
-}
+} 
 
 .profile-image {
     margin: 0 auto;
@@ -280,7 +276,7 @@ img.profile-image {
 .previous-image {
     position: relative;
     /* display: none; */
-}
+ } 
 
 .previous-image:hover .edit {
     display: block;

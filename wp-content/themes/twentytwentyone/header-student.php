@@ -15,10 +15,7 @@
                     <a href="#"><i class="fa-solid fa-gauge-simple-high"></i><span>Dashboard</span></a>
                 </li>
                 <li>
-                    <a href="<?php echo get_the_permalink(708);?>"><i class="fa-solid fa-user"></i><span>Profile</span></a>
-                </li>
-                <li>
-                    <a href="#"><i class="fa-solid fa-chalkboard"></i><span>Courses</span></a>
+                    <a href="<?php echo get_the_permalink(706);?>"><i class="fa-solid fa-user"></i><span>Profile</span></a>
                 </li>
                 <li>
                     <a href="<?php echo get_the_permalink(766);?>"><i class="fa-solid fa-money-bill"></i><span>Payment Info</span></a>

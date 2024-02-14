@@ -84,13 +84,15 @@ $country = get_post_meta($teacher_id, 'country', true);
                             <div class="card-group">
                                 <?php
                                 foreach ($post_attachment as $keys => $imageids) {
-                                    $image = wp_get_attachment_image_url($imageids); ?>
+                                    $image = wp_get_attachment_image_url($imageids);
+                                    if($image){?>
                                     <div class="card">
                                         <img class="card-img-top" src="<?php echo $image ?>" alt="Teacher_qualifications" height="300px" data-id="<?php echo $imageids; ?>">
                                         <a href="javascript:void(0);" class="remove btn btn-danger">remove</a>
                                         <input type="hidden" name="image[]" id="imageid_<?php echo $keys; ?>" value="<?php echo $imageids; ?>">
                                     </div>
                                 <?php
+                                    }
                                 }
                                 ?>
                             </div>
