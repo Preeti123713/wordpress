@@ -294,4 +294,48 @@ img.profile-image {
 .edit a {
     color: #000;
 }
+.card-header.custom-header{
+    background-color: #9b6ded;
+    padding: 20px 30px;
+    transition: 0.2s ease;
+}
+.card-header a {
+    color: #fff;
+    text-align: center;
+    font-weight: bold;
+}
+.card-header:hover{
+    background-color: #b08ced;
+}
+.card-header a:hover{
+    color:#fff;
+}
+.card-body{
+    background-color: #fff;
+}
+ul {
+    list-style-type: none;
+}
+.card-body {
+    background-color: #fff;
+}
 
+.booking-info {
+    list-style: none;
+    padding: 0;
+}
+
+.booking-info li {
+    margin-bottom: 10px; /* Adjust as needed */
+}
+  /* .card-body{
+    margin: auto;
+    padding: 1% 2%;
+    max-width: 1440px;
+    border-radius: 5px;
+    background: #ecf0f1;
+    box-shadow: 0 2px 6px 0 rgba(0,0,0, .3);
+  } */
+  #accordion{
+ border-radius:30%;
+  }

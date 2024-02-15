@@ -2,76 +2,50 @@
 /*Template Name:Stdentpayment */
 get_header('student');
 $user_id = get_current_user_id();
-$sql = "SELECT Booking.plans,Booking.teacherid,Booking.plan_price,Booking.payment_id,payment.user_id,payment.payment_date_time,payment.totalamount 
-FROM booking 
-INNER JOIN payment ON booking.payment_id = payment.id
-WHERE payment.user_id = 50;";
-$bookings = $wpdb->get_results($sql);
-// echo "<pre>";
-// print_r($bookings);
-// Function to group array by payment_id
-// Group the array by payment_id
-$groupedArray = [];
-foreach ($bookings as $item) {
-    $paymentId = $item->payment_id;
-    if (!isset($groupedArray[$paymentId])) {
-        $groupedArray[$paymentId] = [];
-    }
-    $groupedArray[$paymentId][] = $item;
-}
-echo "<pre>";
-// Output the grouped array
-// print_r($groupedArray);
+$sql = "SELECT id,totalamount FROM payment WHERE user_id = $user_id";
+$Payments = $wpdb->get_results($sql);
 ?>
 <div class="container">
-        <div id="accordion">
-            <div class="card">
-                <div class="card-header">
-                    <a class="card-link" data-toggle="collapse" href="#collapseOne">
-                        Collapsible Group Item #1
+    <div id="accordion">
+        <?php foreach ($Payments as $key => $payment) {
+            $payment_id = $payment->id;
+            $sql2 = "SELECT * FROM `booking` WHERE payment_id = $payment_id";
+            $bookings = $wpdb->get_results($sql2);
+        ?>
+            <div class="card" >
+                <div class="card-header custom-header">
+                    <a class="card-link" data-toggle="collapse" href="#description<?php echo $payment_id; ?>">
+                        Total Amount :   <?php echo $payment->totalamount; ?>
                     </a>
                 </div>
-                <div id="collapseOne" class="collapse show" data-parent="#accordion">
+                <div id="description<?php echo $payment_id; ?>" class="collapse" data-parent="#accordion">
                     <div class="card-body">
-                        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                        <ul>
-                            <li>Coffee</li>
-                            <li>Tea</li>
-                            <li>Milk</li>
-                        </ul>
-
-                        <ul>
-                            <li>Audi</li>
-                            <li>BMW</li>
-                            <li>Mercedes</li>
-                        </ul>
+                        <?php foreach ($bookings as $book){ ?>
+                            <ul>
+                                <li>
+                                    <p>Teacher Name : <?php echo get_the_title($book->id) ?>
+                                    </p></li>
+                                <li><p>Plan : <?php echo $book->plans; ?></p></li>
+                                <li><p>Plan Price : $<?php echo $book->plan_price; ?></p></li>
+                                <?php $timestamp = $book->booking_date_time;
+                                $date = date('d/m/Y', $timestamp);
+                                $time = date('H:i:s', $timestamp);
+                                $new_time = date('h:i:s a', strtotime($time));
+                                ?>
+                                <li><p>
+                                    Date : <?php echo $date; 
+                                            ?></p>
+                                </li>
+                                <li><p>
+                                    Time : <?php echo $new_time; ?></p>
+                                </li>
+                            </ul>
+                            <hr>
+                        <?php } ?>
                     </div>
                 </div>
             </div>
-            <div class="card">
-                <div class="card-header">
-                    <a class="collapsed card-link" data-toggle="collapse" href="#collapseTwo">
-                        Collapsible Group Item #2
-                    </a>
-                </div>
-                <div id="collapseTwo" class="collapse" data-parent="#accordion">
-                    <div class="card-body">
-                        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                    </div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    <a class="collapsed card-link" data-toggle="collapse" href="#collapseThree">
-                        Collapsible Group Item #3
-                    </a>
-                </div>
-                <div id="collapseThree" class="collapse" data-parent="#accordion">
-                    <div class="card-body">
-                        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                    </div>
-                </div>
-            </div>
-        </div>
+        <?php } ?>
     </div>
+</div>
 <?php get_footer('student'); ?>
