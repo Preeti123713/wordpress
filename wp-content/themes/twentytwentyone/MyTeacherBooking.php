@@ -2,7 +2,7 @@
 /* Template Name: Booked Teachers*/
 get_header('student');
 $user_id = get_current_user_id();
-$sql = "SELECT Booking.teacherid, payment.user_id,payment.payment_date_time,payment.totalamount FROM booking INNER JOIN payment ON booking.payment_id = payment.id WHERE payment.user_id = $user_id ORDER BY payment.id DESC";
+$sql = "SELECT Booking.teacherid, payment.user_id,payment.payment_date_time,payment.totalamount FROM booking INNER JOIN payment ON booking.payment_id = payment.id WHERE payment.user_id = $user_id ORDER BY payment_date_time DESC";
 $bookings = $wpdb->get_results($sql);
 ?>
 <div class="booking mb-4">
@@ -16,12 +16,12 @@ $bookings = $wpdb->get_results($sql);
           <tr>
             <th>Teacher`s Name</th>
             <th>Total Price</th>
-            <th>Time</th>
-            <th>Date</th>
+            <th>DateTime</th>
           </tr>
         </thead>
         <tbody>
-          <?php foreach ($bookings as $booking) { ?>
+          <?php foreach ($bookings as $booking) {                                       
+              ?>
             <tr>
               <td>
                 <p><?php echo get_the_title($booking->teacherid); ?></p>
@@ -30,16 +30,10 @@ $bookings = $wpdb->get_results($sql);
                 <p><?php echo $booking->totalamount; ?></p>
               </td>
               <?php
-              // Split the string into date and time components
-              $datetime = explode(' ', $booking->payment_date_time);
-              $date = $datetime[0];
-              $time = $datetime[1];
+              $timestamp = $booking->payment_date_time;
+              $date = date('d-m-Y h:i:s a',$timestamp);
               ?>
-              <td>
-                <p><?php echo $time; ?></p>
-              </td>
-              <td>
-                <p><?php echo $date; ?></p>
+                <td><?php  echo $date; ?></td>
               </td>
             </tr>
           </tbody>

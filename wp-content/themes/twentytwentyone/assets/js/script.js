@@ -256,6 +256,7 @@ $(document).ready(function () {
   });
   $('#register').submit(function (e) {
     e.preventDefault()
+    alert("hllow");
     var username = $('#username').val();
     var email = $('#email').val();
     var password = $('#password').val();
@@ -285,10 +286,10 @@ $(document).ready(function () {
       type: 'post',
       url: ajax_object.ajax_url, // Use admin-ajax.php as the URL
       data: formData,
-      success: function (response) {
+      success: function (response){
         // console.log(response);
         $('#response').html(response).fadeOut(5000);
-        window.location.href = "http://localhost/wordpress/thank-you/";
+        // window.location.href = "http://localhost/wordpress/thank-you/";
       },
       error: function (error) {
         // console.log(error);
@@ -296,7 +297,6 @@ $(document).ready(function () {
       }
     });
   });
-
 });
 
 

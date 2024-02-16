@@ -791,6 +791,8 @@ function ajax_login()
 }
 function register_user()
 {
+	$token = md5($_POST['email']).rand(10,9999);
+	$link = "<a href='localhost/email-verification/verify-email.php?key=".$_POST['email']."&token=".$token."'>Click and Verify Email</a>";
 	$email = sanitize_email($_POST['email']);
 	$username = $_POST['username'];
 	if ($_POST['password'] !== $_POST['confirm_password']) {
@@ -883,10 +885,10 @@ function create_payment_intent_callback()
 
 	// Get current user ID
 	$user_id = get_current_user_id();
-
-	// Get current date and time
-	$currentDateTime = date("Y-m-d H:i:s");
-
+	date_default_timezone_set('Asia/Kolkata');
+	$currentDateTime = date("d-m-Y h:i:sa");
+	$timestamp = strtotime($currentDateTime);
+	echo $timestamp;
 	// Payment status
 	$payment_status = "SUCCESS";
 
@@ -896,7 +898,7 @@ function create_payment_intent_callback()
 		array(
 			'tran_id' => $trans_id,
 			'user_id' => $user_id,
-			'payment_date_time' => $currentDateTime,
+			'payment_date_time' => $timestamp,
 			'payment_status' => $payment_status,
 			'totalamount' => $amount
 		)
