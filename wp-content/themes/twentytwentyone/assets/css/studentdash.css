@@ -345,5 +345,9 @@ ul {
   border-radius: 15px;
   box-shadow: 0 5px 10px rgba(0,0,0,0.1);
   width: fit-content;
-  margin: 50px auto;
+  margin: 100px auto;
+  text-align: center;
   }
+.verified-container header {
+    text-align: center;
+}

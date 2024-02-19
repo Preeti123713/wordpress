@@ -275,7 +275,7 @@ $(document).ready(function () {
       },
       success: function (response) {
         $('#registration-message').html(response).fadeIn(5000);
-        window.location.reload();
+        // window.location.reload();
       }
     });
   });

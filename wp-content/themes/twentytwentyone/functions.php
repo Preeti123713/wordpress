@@ -791,49 +791,100 @@ function ajax_login()
 }
 function register_user()
 {
-	$token = md5($_POST['email']).rand(10,9999);
-	$link = "<a href='localhost/email-verification/verify-email.php?key=".$_POST['email']."&token=".$token."'>Click and Verify Email</a>";
-	$email = sanitize_email($_POST['email']);
-	$username = $_POST['username'];
-	if ($_POST['password'] !== $_POST['confirm_password']) {
-		echo "Your passwords did not match";
-		exit;
-	} else {
-		$password = $_POST['password'];
-	}
+    // create code to verify later
+    $activation_code = md5(uniqid());
 
-	$user_data = array(
-		'user_login' => $email,
-		'user_email' => $email,
-		'user_pass' => $password,
-		'username' => $username,
-		'password' => $password,
-		'role' => 'student', // Assign the role 'student' to the user
-	);
+    // Sanitize input
+    $email = sanitize_email($_POST['email']);
+    $username = sanitize_text_field($_POST['username']);
+    $password = sanitize_text_field($_POST['password']);
+    $confirm_password = sanitize_text_field($_POST['confirm_password']);
 
-	$user_id = wp_insert_user($user_data);
+    // Check if email is valid
+    if (!is_email($email)) {
+        echo "Invalid email address";
+        exit;
+    }
 
-	if (is_wp_error($user_id)) {
-		echo $user_id->get_error_message();
-		exit();
-	} else {
-		// Auto-login after successful registration
-		$creds = array(
-			'user_login' => $email,
-			'user_password' => $password,
-			'remember' => true
-		);
+    // Check if email is already registered
+    // if (email_exists($email)) {
+    //     echo "This email address is already registered";
+    //     exit;
+    // }
 
-		$user = wp_signon($creds);
+    // Check password match
+    if ($password !== $confirm_password) {
+        echo "Your passwords did not match";
+        exit;
+    }
+    // Check password strength if needed
 
-		if (is_wp_error($user)) {
-			echo $user->get_error_message();
-			exit();
-		} else {
-			echo "Registration and login successful";
-			wp_redirect(get_permalink(52));
-		}
-	}
+    // Hash the password securely
+    $hashed_password = wp_hash_password($password);
+
+    $user_data = array(
+        'user_login' => $email,
+        'user_email' => $email,
+        'user_pass' => $hashed_password,
+        'username' => $username,
+        'role' => 'student', // Assign the role 'student' to the user
+    );
+
+    // Create the user but don't activate it yet
+    $user_id = wp_insert_user($user_data);
+
+    if (is_wp_error($user_id)) {
+        echo $user_id->get_error_message();
+        exit;
+    }
+
+    // Send verification email
+    $activation_link = get_site_url() . '/loginform/?code=' . $activation_code; // Change 'verify-email' to your verification endpoint
+    $email_subject = 'Please verify your email';
+    $email_message = 'Please click the following link to verify your email address: ' . $activation_link;
+    $data = array(
+        "sender" => array(
+            "email" => 'preetir@graycelltech.com',
+            "name" => 'Preeti Rawat'
+        ),
+        "to" => array(
+            array(
+                "email" => $email,
+                "name" => $username // You can use the username here if you want
+            )
+        ),
+        "subject" => $email_subject,
+        "htmlContent" => '<html><head></head><body><p>'.$email_message .'</p></p></body></html>'
+    );
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, 'https://api.sendinblue.com/v3/smtp/email');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    $headers = array(
+        'Accept: application/json',
+        'Api-Key: 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',
+        'Content-Type: application/json'
+    );
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    $result = curl_exec($ch);
+    if (curl_errno($ch)) {
+        echo 'Error:' . curl_error($ch);
+        exit;
+    }
+    curl_close($ch);
+
+    // Notify user of successful registration
+    echo "Please verify your email address. A verification link has been sent to your email.";
+
+    // Store activation code and status
+    update_user_meta($user_id, 'account_activated', 0);
+    update_user_meta($user_id, 'activation_code', $activation_code);
+	exit;
+}
+function email_verification(){
+	print_r($_GET['']);
 }
 
 add_action('custom_sort', 'custom_sort');
@@ -888,7 +939,6 @@ function create_payment_intent_callback()
 	date_default_timezone_set('Asia/Kolkata');
 	$currentDateTime = date("d-m-Y h:i:sa");
 	$timestamp = strtotime($currentDateTime);
-	echo $timestamp;
 	// Payment status
 	$payment_status = "SUCCESS";
 
