@@ -1,4 +1,22 @@
 $(document).ready(function () {
+  if (custom_vars.is_login_page && document.location.search.length) {
+    var searchParams = new URLSearchParams(window.location.search);
+    var token = searchParams.get('code');
+    $.ajax({
+      type: 'Post',
+      url: ajax_object.ajax_url,
+      data: {
+        'token': token,
+        'action': 'verify_token'
+      },
+      success: function (response) {
+        alert(response);
+      },
+      error: function (response) {
+        alert(response);
+      }
+    });
+  }
   $('.edit').click(function () {
     // Get the value of the hidden input field inside the previous-image div
     var imageId = $("#imageid").val();
@@ -118,9 +136,9 @@ $(document).ready(function () {
       contentType: false,
       processData: false,
       success: function (response) {
-      alert(response);
-      // location.reload();     
-     },
+        alert(response);
+        location.reload();     
+      },
       error: function (xhr, status, error) { // Modified error function parameters to handle proper error response
         var errorMessage = xhr.status + ': ' + xhr.statusText;
         alert('Error - ' + errorMessage);
@@ -141,13 +159,12 @@ $(document).ready(function () {
         if (data.status) {
           alert(data.message);
           $(Form).trigger("reset");
+          setTimeout(() => {
+            window.location.href = data.url;
+          }, 1000);
         } else {
           alert(data.message);
         }
-
-        setTimeout(() => {
-          window.location.href = data.url;
-        }, 1000);
       },
       error: function (error) {
         alert(error);
@@ -254,13 +271,15 @@ $(document).ready(function () {
       }
     });
   });
-  $('#register').submit(function (e) {
+   $('#register-form123').submit(function (e) {
     e.preventDefault()
-    alert("hllow");
+    alert("heloo");
     var username = $('#username').val();
     var email = $('#email').val();
     var password = $('#password').val();
+    console.log(password);
     var confirm_password = $('#confirm-password').val();
+    console.log(confirm_password);
     //  console.log(ajax_object.ajax_url);
     $.ajax({
       type: 'POST',
@@ -270,15 +289,35 @@ $(document).ready(function () {
         'username': username,
         'email': email,
         'password': password,
-        'confirm_password': confirm_password,
+        'confirm-password': confirm_password,
         'security': ajax_object.ajax_nonce,
       },
       success: function (response) {
         $('#registration-message').html(response).fadeIn(5000);
-        // window.location.reload();
+        window.location.reload();
+      },
+      error:function(response){
+        $("#registration-message").html(response).fadeIn(5000);
       }
     });
   });
+  $('#register-form').submit(function (e) {
+    e.preventDefault();
+    var formdata = $(this).serialize();
+    $.ajax({
+      type: 'POST',
+      url: ajax_object.ajax_url,
+      data: formdata,
+      success: function (response) {
+        alert(response);
+        // window.location.reload();
+      }
+      , error: function (response) {
+        alert(response);
+      }
+    });
+  });
+
   $("#payment-form").submit(function (event) {
     event.preventDefault(); // Prevent the default form submission
     var formData = $(this).serialize();
@@ -286,7 +325,7 @@ $(document).ready(function () {
       type: 'post',
       url: ajax_object.ajax_url, // Use admin-ajax.php as the URL
       data: formData,
-      success: function (response){
+      success: function (response) {
         // console.log(response);
         $('#response').html(response).fadeOut(5000);
         // window.location.href = "http://localhost/wordpress/thank-you/";

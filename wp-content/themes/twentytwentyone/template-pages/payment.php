@@ -1,7 +1,6 @@
 <?php
 /* Template Name: Payment */
 get_header();
-// print_r($_GET);
 $purpose = ($_GET['purposee']);
 $timeperiod = $_GET['timeperiodd'];
 $pplan = [];
@@ -46,7 +45,7 @@ $user = get_userdata($user_id);
 				</div>
 				<div id="register" class="tab-pane fade">
 					<h3>Register</h3>
-					<form id="register-form" method="post">
+					<form id="register-form123" method="post">
 						<div class="form-group">
 							<input type="text" name="username" id="username" tabindex="1" class="form-control" placeholder="Username">
 						</div>

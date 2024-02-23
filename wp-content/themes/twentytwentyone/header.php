@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang='en' dir='ltr'>
-
 <head>
   <meta charset='UTF-8'>
   <meta name='viewport' content='width=device-width, initial-scale=1.0'>
@@ -16,7 +15,7 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-          <a class="nav-link" href="<?php echo get_the_permalink(81); ?>">Home</a>
+          <a class="nav-link" href="<?php echo get_the_permalink(59); ?>">Home</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#">About</a>
@@ -27,14 +26,19 @@
         <li class="nav-item">
           <a class="nav-link" href="#">Contact</a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" style="white-space: nowrap;">
           <a class="nav-link" href="<?php echo get_the_permalink(81); ?>">To Become Teacher</a>
         </li>
-        <?php if (current_user_can('student')) {
+        <?php if (!is_user_logged_in()) {
         ?>
+        <li class="nav-item">
+          <a class="nav-link" href="<?php  echo get_the_permalink(843);?>">Register</a>
+        </li>
+        <?php } ?>
+        <?php if (current_user_can('student')) {
+        ?> 
           <li class="nav-item">
-            <a class="nav-link" href="<?php echo get_the_permalink(706);
-                                      ?>">Profile</a>
+            <a class="nav-link" href="<?php echo get_the_permalink(706); ?>">Profile</a>
           </li>
         <?php  } elseif (current_user_can('teacher')) {
         ?>

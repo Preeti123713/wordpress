@@ -28,7 +28,7 @@ $teacherdata = [];
                     <?php foreach ($discount as $key => $value) { ?>
                         <div class="card card-item">
                             <div class="card-body">
-                                <p class="card-text">
+                                <p class="card-text plans">
                                     <?php
                                     $plan = $plans[$key];
                                     echo $plan;

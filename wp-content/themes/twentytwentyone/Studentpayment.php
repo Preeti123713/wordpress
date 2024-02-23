@@ -2,16 +2,17 @@
 /*Template Name:Stdentpayment */
 get_header('student');
 $user_id = get_current_user_id();
-$sql = "SELECT id,totalamount FROM payment WHERE user_id = $user_id Order By id Desc";
+$sql = "SELECT id,totalamount,payment_date_time FROM payment WHERE user_id = $user_id Order By id Desc";
 $Payments = $wpdb->get_results($sql);
 ?>
 <div class="container">
     <div id="accordion">
         <?php foreach ($Payments as $key => $payment) {
             $payment_id = $payment->id;
-            $sql2 = "SELECT * FROM `booking` WHERE payment_id = $payment_id";
-            $bookings = $wpdb->get_results($sql2);
-        ?>
+            // $sql2 = "SELECT * FROM `booking` WHERE payment_id = $payment_id";
+         $testsql = "SELECT booking.*, payment.payment_date_time FROM booking INNER JOIN payment ON booking.payment_id = payment.id WHERE booking.payment_id = $payment_id";
+            $bookings = $wpdb->get_results($testsql);
+            ?>
             <div class="card">
                 <div class="card-header custom-header">
                     <a class="card-link" data-toggle="collapse" href="#description<?php echo $payment_id; ?>">
@@ -32,7 +33,7 @@ $Payments = $wpdb->get_results($sql);
                             </thead>
                             <tbody>
                                 <?php foreach ($bookings as $book) {
-                                    $timestamp = $book->booking_date_time;
+                                    $timestamp = $book->payment_date_time;
                                     $date = date('d/m/Y',$timestamp);
                                     $time = date("h:i:s A" ,$timestamp);
                                 ?>

@@ -2,14 +2,14 @@
 /* Template Name: Booked Teachers*/
 get_header('student');
 $user_id = get_current_user_id();
-$sql = "SELECT Booking.teacherid, payment.user_id,payment.payment_date_time,payment.totalamount FROM booking INNER JOIN payment ON booking.payment_id = payment.id WHERE payment.user_id = $user_id ORDER BY payment_date_time DESC";
+$sql = "SELECT Booking.teacherid,Booking.booking_date_time,payment.user_id,payment.totalamount FROM booking INNER JOIN payment ON booking.payment_id = payment.id WHERE payment.user_id = $user_id ORDER BY payment_date_time DESC";
 $bookings = $wpdb->get_results($sql);
 ?>
 <div class="booking mb-4">
   <div class="booking-inner">
     <div class="col-md-9">
       <header class="booking-header">
-        <div class="title">Booked Teacher</div>
+        <div class="title">Booked Teacher</div>            
       </header>
       <table class="booking-table">
         <thead>
@@ -30,7 +30,7 @@ $bookings = $wpdb->get_results($sql);
                 <p><?php echo $booking->totalamount; ?></p>
               </td>
               <?php
-              $timestamp = $booking->payment_date_time;
+              $timestamp = $booking->booking_date_time;
               $date = date('d-m-Y h:i:s a',$timestamp);
               ?>
                 <td><?php  echo $date; ?></td>

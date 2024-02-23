@@ -750,6 +750,11 @@ function enqueue_custom_js()
 	);
 	// Localize the script with the passed data
 	wp_localize_script('script', 'ajax_object', $ajax_data);
+
+	// Pass PHP variables to JavaScript
+	wp_localize_script('script', 'custom_vars', array(
+		'is_login_page' => is_page_template('commonLogin.php'), // Check if it's a login page
+	));
 }
 add_action('wp_enqueue_scripts', 'enqueue_custom_js');
 
@@ -769,126 +774,151 @@ add_role('student', 'Student', array(
 ));
 
 add_action('wp_ajax_nopriv_ajax_login', 'ajax_login');
+add_action('wp_ajax_register_user', 'register_user');
 add_action('wp_ajax_nopriv_register_user', 'register_user');
 
 // Login Function
 function ajax_login()
 {
-	$creds = array(
-		'user_login' => $_POST['email'],
-		'user_password' => $_POST['password'],
-		'remember' => true
-	);
-
-	$user = wp_signon($creds);
-	if (is_wp_error($user)) {
-		echo $user->get_error_message();
-		exit();
+	$email = $_POST['email'];
+	$user = get_user_by('email', $email);
+	$userId = $user->ID;
+	$account_activated = get_user_meta($userId, 'account_activated');
+	if ($account_activated == 1) {
+		$creds = array(
+			'user_login' => $email,
+			'user_password' => $_POST['password'],
+			'remember' => true
+		);
+		$user = wp_signon($creds);
+		if (is_wp_error($user)) {
+			echo $user->get_error_message();
+			exit();
+		} else {
+			echo "login successful";
+		}
+		exit;
 	} else {
-		echo "login successful";
+		echo "Verify your Email Id by clicking the link In your mailbox";
+		exit();
 	}
-	exit;
 }
 function register_user()
 {
-    // create code to verify later
-    $activation_code = md5(uniqid());
+	// create code to verify later
+	$activation_code = md5(uniqid());
+	$email = sanitize_email($_POST['email']);
+	$username = sanitize_text_field($_POST['username']);
+	$password = sanitize_text_field($_POST['password']);
+	// echo $password . "   ";
+	$confirm_password = sanitize_text_field($_POST['confirm-password']);
+	// Check if email is valid
+	if (!is_email($email)) {
+		echo "Invalid email address";
+		exit;
+	}
+	// Check if email is already registered
+	if (email_exists($email)) {
+		echo "This email address is already registered";
+		exit;
+	}
 
-    // Sanitize input
-    $email = sanitize_email($_POST['email']);
-    $username = sanitize_text_field($_POST['username']);
-    $password = sanitize_text_field($_POST['password']);
-    $confirm_password = sanitize_text_field($_POST['confirm_password']);
+	// Check password match
+	if ($password !== $confirm_password) {
+		echo "Your passwords did not match";
+		exit;
+	}
+	// Check password strength if needed
 
-    // Check if email is valid
-    if (!is_email($email)) {
-        echo "Invalid email address";
-        exit;
-    }
+	// Hash the password securely
+	// $hashed_password = wp_hash_password($password);
 
-    // Check if email is already registered
-    // if (email_exists($email)) {
-    //     echo "This email address is already registered";
-    //     exit;
-    // }
+	$user_data = array(
+		'user_login' => $username,
+		'user_email' => $email,
+		'user_pass' => $password,
+		'username' => $username,
+		'role' => 'student', // Assign the role 'student' to the user
+	);
 
-    // Check password match
-    if ($password !== $confirm_password) {
-        echo "Your passwords did not match";
-        exit;
-    }
-    // Check password strength if needed
+	// Create the user but don't activate it yet
+	$user_id = wp_insert_user($user_data);
 
-    // Hash the password securely
-    $hashed_password = wp_hash_password($password);
+	if (is_wp_error($user_id)) {
+		echo $user_id->get_error_message();
+		exit;
+	}
 
-    $user_data = array(
-        'user_login' => $email,
-        'user_email' => $email,
-        'user_pass' => $hashed_password,
-        'username' => $username,
-        'role' => 'student', // Assign the role 'student' to the user
-    );
+	// Send verification email
+	$activation_link = get_site_url() . '/loginform/?code=' . $activation_code . '_' . $user_id; // Change 'verify-email' to your verification endpoint
+	$email_subject = 'Please verify your email';
+	$email_message = 'Hello' . '  ' . $username . '<br><br>' . 'You registered an account on TeachingPlatform, before being able to use your account you need to verify that this is your email address by clicking here: <a href="' . $activation_link . '">' . $activation_link . '</a>'
+		. '<br><br>' .
+		'Best Regards,' . '<br>' .
+		' Powered by TeachingPlatform';
+	$data = array(
+		"sender" => array(
+			"email" => 'preetir@graycelltech.com',
+			"name" => 'TeachingPlatform'
+		),
+		"to" => array(
+			array(
+				"email" => $email,
+				"name" => $username // You can use the username here if you want
+			)
+		),
+		"subject" => $email_subject,
+		"htmlContent" => '<html><head></head><body><p>' . $email_message . '</p></body></html>'
+	);
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, 'https://api.sendinblue.com/v3/smtp/email');
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($ch, CURLOPT_POST, 1);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+	$headers = array(
+		'Accept: application/json',
+		'Api-Key: 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',
+		'Content-Type: application/json'
+	);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+	$result = curl_exec($ch);
+	if (curl_errno($ch)) {
+		echo 'Error:' . curl_error($ch);
+		exit;
+	}
+	curl_close($ch);
 
-    // Create the user but don't activate it yet
-    $user_id = wp_insert_user($user_data);
+	// Notify user of successful registration
+	echo "Registration successful, please verify in the registered Email-Id";
 
-    if (is_wp_error($user_id)) {
-        echo $user_id->get_error_message();
-        exit;
-    }
-
-    // Send verification email
-    $activation_link = get_site_url() . '/loginform/?code=' . $activation_code; // Change 'verify-email' to your verification endpoint
-    $email_subject = 'Please verify your email';
-    $email_message = 'Please click the following link to verify your email address: ' . $activation_link;
-    $data = array(
-        "sender" => array(
-            "email" => 'preetir@graycelltech.com',
-            "name" => 'Preeti Rawat'
-        ),
-        "to" => array(
-            array(
-                "email" => $email,
-                "name" => $username // You can use the username here if you want
-            )
-        ),
-        "subject" => $email_subject,
-        "htmlContent" => '<html><head></head><body><p>'.$email_message .'</p></p></body></html>'
-    );
-
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, 'https://api.sendinblue.com/v3/smtp/email');
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    $headers = array(
-        'Accept: application/json',
-        'Api-Key: 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',
-        'Content-Type: application/json'
-    );
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    $result = curl_exec($ch);
-    if (curl_errno($ch)) {
-        echo 'Error:' . curl_error($ch);
-        exit;
-    }
-    curl_close($ch);
-
-    // Notify user of successful registration
-    echo "Please verify your email address. A verification link has been sent to your email.";
-
-    // Store activation code and status
-    update_user_meta($user_id, 'account_activated', 0);
-    update_user_meta($user_id, 'activation_code', $activation_code);
+	// Store activation code and status
+	update_user_meta($user_id, 'account_activated', 0);
+	update_user_meta($user_id, 'activation_code', $activation_code);
 	exit;
 }
-function email_verification(){
-	print_r($_GET['']);
+
+// Add AJAX action for verify_token
+add_action('wp_ajax_verify_token', 'verify_token');
+add_action('wp_ajax_nopriv_verify_token', 'verify_token');
+
+function verify_token()
+{
+	$token = $_POST['token']; // Change from $_GET to $_POST
+	// echo $token;
+	$results = explode('_', $token);
+	$token_id = $results[0];
+	$user_id = $results[1];
+	$data_token = get_user_meta($user_id, 'activation_code', true);
+	if ($token_id == $data_token) {
+		// change activation status
+		update_user_meta($user_id, 'account_activated', 1);
+		echo "Your account is activated";
+	} else {
+		echo "Wrong activation code.";
+	}
+	exit;
 }
-
 add_action('custom_sort', 'custom_sort');
-
 function custom_sort($arr)
 {
 	$level = strtolower($_GET['level-select']);
@@ -923,7 +953,6 @@ add_action('wp_ajax_nopriv_create_payment_intent_callback', 'create_payment_inte
 function create_payment_intent_callback()
 {
 	global $wpdb;
-
 	// Custom table names
 	$table_name = 'payment';
 	$second_table_name = 'booking';
@@ -1027,7 +1056,7 @@ function create_payment_intent_callback()
 			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 			$headers = array();
 			$headers[] = 'Accept: application/json';
-			$headers[] = 'Api-Key: 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';
+			$headers[] = 'Api-Key: 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';
 			$headers[] = 'Content-Type: application/json';
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 			$result = curl_exec($ch);
@@ -1166,37 +1195,56 @@ function CreateTeachers()
 add_action('wp_ajax_commonLogin', 'commonLogin');
 add_action('wp_ajax_nopriv_commonLogin', 'commonLogin');
 
-function commonLogin()
-{
-	$response = [];
-	$login_data = array(
-		'user_login'    => $_POST['email'],
-		'user_password' => $_POST['password'],
-		'remember'      => true,
-	);
+function commonLogin() {
+    if( isset($_POST['email'], $_POST['password']) ) {
+        $email = sanitize_email($_POST['email']);
+        $user = get_user_by('email', $email);
 
-	$user_verify = wp_signon($login_data, false);
+        if ($user) {
+            $userId = $user->ID;
+            $account_activated = get_user_meta($userId, 'account_activated', true);
+            
+            if ($account_activated == 1) {
+                $response = [];
+                $login_data = array(
+                    'user_login'    => $email,
+                    'user_password' => $_POST['password'],
+                    'remember'      => true,
+                );
 
-	if (is_wp_error($user_verify)) {
-		// echo '<div class="error">Invalid username or password. Please try again.</div>';
-		$response['status'] = 0;
-		$response['message'] = "ERROR: Something went wrong";
-	} else {
-		// echo '<div class="success">Login successful. Redirecting...</div>';
-		// Redirect basis on role student or teacher
-		$id = $user_verify->ID;
-		$user_info = get_userdata($id);
-		if (in_array('teacher', (array) $user_info->roles)) {
-			$response['url'] = get_the_permalink(394);
-		} elseif (in_array('student', (array) $user_info->roles)) {
-			$response['url'] = get_the_permalink(644);
-		}
-		$response['status'] = 1;
-		$response['message'] = "Login Successful";
-	}
-	echo json_encode($response);
-	exit();
+                $user_verify = wp_signon($login_data, false);
+
+                if (is_wp_error($user_verify)) {
+                    $response['status'] = 0;
+                    $response['message'] = "ERROR: Invalid username or password. Please try again.";
+                } else {
+                    $id = $user_verify->ID;
+                    $user_info = get_userdata($id);
+
+                    if (in_array('teacher', (array) $user_info->roles)) {
+                        $response['url'] = get_the_permalink(394);
+                    } elseif (in_array('student', (array) $user_info->roles)) {
+                        $response['url'] = get_the_permalink(644);
+                    }
+                    $response['status'] = 1;
+                    $response['message'] = "Login Successful";
+                }
+            } else {
+                $response['status'] = 0;
+                $response['message'] = "ERROR: Verify your Email Id by clicking the link in your mailbox";
+            }
+        } else {
+            $response['status'] = 0;
+            $response['message'] = "ERROR: User not found.";
+        }
+    } else {
+        $response['status'] = 0;
+        $response['message'] = "ERROR: Email and password are required.";
+    }
+    echo json_encode($response);
+    exit();
 }
+
 // To update Teacher in database
 add_action('wp_ajax_updateTeachers', 'updateTeachers');
 add_action('wp_ajax_nopriv_updateTeachers', 'updateTeachers');
@@ -1328,7 +1376,7 @@ add_action('wp_ajax_ForgetPassword', 'ForgetPassword');
 add_action('wp_ajax_nopriv_ForgetPassword', 'ForgetPassword');
 function ForgetPassword()
 {
-global $current_user;
+	global $current_user;
 	$currentpassword = $_POST['pwd'];
 	$confirmpassword = $_POST['confirmpassword'];
 	$newpassword = $_POST['newpassword'];
@@ -1337,10 +1385,10 @@ global $current_user;
 		echo "New password and confirm password do not match.";
 		exit;
 	}
-	
+
 	// Get the current user's information
 	$current_user = wp_get_current_user();
-	
+
 	// Check if the entered current password matches the user's actual password
 	if (wp_check_password($currentpassword, $current_user->user_pass, $current_user->ID)) {
 		// Prepare data for updating the user
@@ -1349,16 +1397,16 @@ global $current_user;
 			'ID' => $user_id,
 			'user_pass' => $newpassword
 		);
-	
+
 		// Update the user's information
 		$updated = wp_update_user($user_data);
 
-	
+
 		// Check if the update was successful
 		if ($updated) {
 			$user_email = wp_get_current_user()->user_email;
 			$subject = "Your password has been changed";
-	
+
 			// Simple HTML content for the email
 			$htmlContent = "
 				<html>
@@ -1367,7 +1415,7 @@ global $current_user;
 					<p><a href='#'>Back to Login</a></p>
 				</body>
 				</html>";
-	
+
 			// Build the email data
 			$data = array(
 				"sender" => array(
@@ -1383,7 +1431,7 @@ global $current_user;
 				"subject" => $subject,
 				"htmlContent" => $htmlContent
 			);
-	
+
 			// Send email using Sendinblue API
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, 'https://api.sendinblue.com/v3/smtp/email');
@@ -1392,7 +1440,7 @@ global $current_user;
 			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 			$headers = array(
 				'Accept: application/json',
-				'Api-Key: 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',
+				'Api-Key: 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',
 				'Content-Type: application/json'
 			);
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -1403,7 +1451,7 @@ global $current_user;
 				exit();
 			}
 			curl_close($ch);
-	
+
 			echo "success";
 			exit;
 		} else {
@@ -1413,7 +1461,7 @@ global $current_user;
 		echo "Current password is incorrect.";
 		exit();
 	}
-}	
+}
 // To update the students
 add_action('wp_ajax_updateStudent', 'updateStudent');
 add_action('wp_ajax_nopriv_updateStudent', 'updateStudent');
